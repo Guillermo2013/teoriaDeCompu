@@ -52,6 +52,7 @@ public class JframeMenu : javax.swing.JFrame() {
         MinimizarBtn = javax.swing.JButton();
         AceptacionLabel = javax.swing.JLabel();
         ConvertirDFA = javax.swing.JButton();
+        ConvertirExpresionRegular = javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -96,6 +97,10 @@ public class JframeMenu : javax.swing.JFrame() {
         (ConvertirDFA as JButton).setText("Convertir a DFA");
         (ConvertirDFA as JButton).addActionListener(  {evt:java.awt.event.ActionEvent->
                 ConvertirDFAActionPerformed(evt);
+        });
+        (ConvertirExpresionRegular as JButton).setText("Convertir a ER");
+        (ConvertirExpresionRegular as JButton).addActionListener(  {evt:java.awt.event.ActionEvent->
+            ConvertirExpresionRegularActionPerformed(evt);
         });
         graph.setAllowLoops(true)
         graph.setDisconnectOnMove(false)
@@ -262,6 +267,8 @@ public class JframeMenu : javax.swing.JFrame() {
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 203, Short.MAX_VALUE.toInt())
                                                 .addComponent(ConvertirDFA)
                                                 .addGap(18, 18, 18)
+                                                .addComponent(ConvertirExpresionRegular)
+                                                .addGap(18, 18, 18)
                                                 .addComponent(MinimizarBtn)))
                                                 .addGap(26, 26, 26))
         );
@@ -281,7 +288,8 @@ public class JframeMenu : javax.swing.JFrame() {
                                         .addComponent(EvaluarBtn)
                                         .addComponent(MinimizarBtn)
                                         .addComponent(AceptacionLabel)
-                                        .addComponent(ConvertirDFA))
+                                        .addComponent(ConvertirDFA)
+                                        .addComponent(ConvertirExpresionRegular))
 
                                 .addGap(22, 22, 22))
         );
@@ -297,7 +305,9 @@ public class JframeMenu : javax.swing.JFrame() {
     fun AlfabetTXTFieldActionPerformed(evt: java.awt.event.ActionEvent) {
         // TODO add your handling code here:
     }
+    fun ConvertirExpresionRegularActionPerformed(evt: java.awt.event.ActionEvent) {
 
+    }
     fun ConvertirDFAActionPerformed(evt: java.awt.event.ActionEvent) {
         // TODO add your handling code here:
         if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
@@ -444,6 +454,7 @@ public class JframeMenu : javax.swing.JFrame() {
     var jLabel1: JLabel? = null
     var  jLabel2: JLabel? = null
     var ConvertirDFA: JButton? = null
+    var ConvertirExpresionRegular: JButton? = null
     var dfa: DFA =DFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfa: NFA = NFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfae: NFAE = NFAE( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())

@@ -7,27 +7,25 @@ fun main(args : Array<String>) {
     var Estado2=Estado("2",false)
     var Estado3 =Estado("3",false)
     var Estado4 =Estado("4",false)
-    var Estado5 =Estado("5",false)
-    var Estado6 =Estado("6",true)
-    var NFAE:NFAE=NFAE(mutableListOf("1","0"),mutableListOf(Estado1,Estado2,Estado3,Estado4,Estado5,Estado6),Estado1,mutableListOf())
-    NFAE.transiciones.add(Transicion(Estado1,Estado2,"ε"))
-    NFAE.transiciones.add(Transicion(Estado1,Estado6,"ε"))
-    NFAE.transiciones.add(Transicion(Estado2,Estado3,"1"))
-    NFAE.transiciones.add(Transicion(Estado3,Estado4,"ε"))
-    NFAE.transiciones.add(Transicion(Estado4,Estado5,"0"))
-    NFAE.transiciones.add(Transicion(Estado5,Estado6,"ε"))
-    NFAE.transiciones.add(Transicion(Estado5,Estado2,"ε"))
+    var Estado5 =Estado("5",true)
+    var Estado6 =Estado("6",false)
+    var DFA:DFA=DFA(mutableListOf("0","1"),mutableListOf(Estado1,Estado2,Estado3,Estado4,Estado5,Estado6),Estado1,mutableListOf())
+    DFA.transiciones.add(Transicion(Estado1,Estado2,"1"))
+    DFA.transiciones.add(Transicion(Estado1,Estado6,"0"))
+    DFA.transiciones.add(Transicion(Estado2,Estado3,"1"))
+    DFA.transiciones.add(Transicion(Estado2,Estado5,"1"))
+    DFA.transiciones.add(Transicion(Estado3,Estado4,"1"))
+    DFA.transiciones.add(Transicion(Estado3,Estado2,"1"))
+    DFA.transiciones.add(Transicion(Estado4,Estado5,"0"))
+    DFA.transiciones.add(Transicion(Estado4,Estado1,"0"))
+    DFA.transiciones.add(Transicion(Estado5,Estado1,"0"))
+    DFA.transiciones.add(Transicion(Estado5,Estado2,"1"))
+    DFA.transiciones.add(Transicion(Estado6,Estado4,"1"))
+    DFA.transiciones.add(Transicion(Estado6,Estado5,"1"))
 
-     var DFA:DFA=DFA(mutableListOf(),mutableListOf(),Estado("",false),mutableListOf())
-    DFA = NFAE.enDfa()
-
-    println("Estados Inicial:"+DFA.estadoInicial.NombreEstado)
-    for (estado in DFA.estados){
-        println("Estados:"+estado.NombreEstado+" Es Aceptado:"+estado.EsAcceptable)
+     var transicion = DFA.ConvertirER()
+    for (transiciones in transicion){
+        println("Estado Inicial:"+transiciones.EstadoInicial.NombreEstado+" Estado Final:"+transiciones.EstadoFinal.NombreEstado+" Simbolo:"+transiciones.Simbolo)
     }
-    for (estado in DFA.transiciones){
-        println("EstadosInicial:"+estado.EstadoInicial.NombreEstado+" EstadoFinal:"+estado.EstadoFinal.NombreEstado+" Simbolo:"+estado.Simbolo)
-    }
-
 
 }
