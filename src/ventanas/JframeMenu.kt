@@ -306,6 +306,7 @@ public class JframeMenu : javax.swing.JFrame() {
         // TODO add your handling code here:
     }
     fun ConvertirExpresionRegularActionPerformed(evt: java.awt.event.ActionEvent) {
+        showMessage(dfa.CrearExpresionRegular())
 
     }
     fun ConvertirDFAActionPerformed(evt: java.awt.event.ActionEvent) {

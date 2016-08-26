@@ -14,14 +14,12 @@ fun main(args : Array<String>) {
     DFA.insertarTransacion(Transicion(Estado2,Estado3,"0"))
     DFA.insertarTransacion(Transicion(Estado3,Estado2,"0"))
     DFA.insertarTransacion(Transicion(Estado3,Estado4,"1"))
-    DFA.insertarTransacion(Transicion(Estado4,Estado5,"0"))
     DFA.insertarTransacion(Transicion(Estado4,Estado4,"1"))
+    DFA.insertarTransacion(Transicion(Estado4,Estado5,"0"))
     DFA.insertarTransacion(Transicion(Estado5,Estado4,"0"))
 
 
-    var transicion = DFA.ConvertirER()
-    for (transiciones in transicion){
-        println("Estado Inicial:"+transiciones.EstadoInicial.NombreEstado+" Estado Final:"+transiciones.EstadoFinal.NombreEstado+" Simbolo:"+transiciones.Simbolo)
-    }
+    print(DFA.CrearExpresionRegular())
+
 
 }

@@ -47,69 +47,97 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         }
         return false
     }
-    fun ConvertirER(): MutableList<Transicion> {
+    fun CrearExpresionRegular():String{
+     var ExpresionRegular = ""
+        for(estados in estados){
+                if(estados.EsAcceptable){
+                    ExpresionRegular += ER(DejarUnSoloEstado(estados.NombreEstado),transiciones)
+                }
+        }
+
+        return ExpresionRegular
+    }
+
+     fun DejarUnSoloEstado(nombreEstado: String): MutableList<Estado> {
+         var Estados : MutableList<Estado> = mutableListOf()
+         for (estado in estados){
+           if(estado.NombreEstado.equals(nombreEstado)){
+               estado.EsAcceptable = true
+               Estados.add(estado)
+           }else{
+               estado.EsAcceptable = false
+               Estados.add(estado)
+           }
+
+        }
+        return Estados
+    }
+
+    fun ER(estados:MutableList<Estado>,transiciones: MutableList<Transicion>): String {
         var estado = 0
         while (estado < estados.size) {
-            var TransicionesHaciaElestado = transicionesHaciaEl(estados[estado].NombreEstado)
-            var TransicionesDesdeElestado = transicionesDesdeEl(estados[estado].NombreEstado)
+            var TransicionesHaciaElestado = transicionesHaciaEl(estados[estado].NombreEstado,transiciones)
+            var TransicionesDesdeElestado = transicionesDesdeEl(estados[estado].NombreEstado,transiciones)
             for (transicionHacia in TransicionesHaciaElestado) {
                 for (transicionDesde in TransicionesDesdeElestado) {
-                    if(transicionHacia.EstadoInicial.NombreEstado.equals(transicionDesde.EstadoFinal.NombreEstado)){
-                        var EstadoDesde = transicionHaciaElMismo(estados[estado].NombreEstado,transiciones)
-                        var SimboloRecursivoEstadoDesde = ""
-                        if (!EstadoDesde.isEmpty()){
-                            SimboloRecursivoEstadoDesde = EstadoDesde[0].Simbolo+"*"
+                    if (caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo.equals("")==true&&
+                            transicionHacia.EstadoInicial.NombreEstado.equals(transicionDesde.EstadoFinal.NombreEstado)==false
+                                    &&estados[estado].EsAcceptable==false
+                    ){
+                        var simboloDeRetorno = transicionHaciaElMismo(estados[estado].NombreEstado,transiciones)
+                        if(!simboloDeRetorno.isEmpty()){
+                            transiciones.add(Transicion(transicionHacia.EstadoInicial,transicionDesde.EstadoFinal,"("+transicionHacia.Simbolo+simboloDeRetorno[0].Simbolo+"*"+transicionDesde.Simbolo+")"))
+                        }else{
+                            transiciones.add(Transicion(transicionHacia.EstadoInicial,transicionDesde.EstadoFinal,"("+transicionHacia.Simbolo+transicionDesde.Simbolo+")"))
+
                         }
-                        var  EstadoHacia = transicionHaciaElMismo(transicionHacia.EstadoInicial.NombreEstado,transiciones)
-                        if (!EstadoHacia.isEmpty()){
-                        var simbolo = ""
-                            var x = transiciones.size-1
-                            while (x>=0){
-                                if(transiciones[x].EstadoInicial.NombreEstado.equals(EstadoHacia[0].EstadoInicial.NombreEstado)&&
-                                        transiciones[x].EstadoFinal.NombreEstado.equals(EstadoHacia[0].EstadoFinal.NombreEstado)){
-                                    simbolo = transiciones[x].Simbolo+"+"
-                                   }
-                                x--
+                       }
+                   else if(caminoDirecto(transicionHacia.EstadoInicial.NombreEstado,transicionDesde.EstadoFinal.NombreEstado,transiciones).Simbolo.equals("")==false&&
+                            caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo.length<=1
+                    &&transicionHacia.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado)==false
+                            &&estados[estado].EsAcceptable==false){
+                        var caminoDirectoSimbolo =  caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo
+                        var simboloDeRetorno = transicionHaciaElMismo(estados[estado].NombreEstado,transiciones)
+                        var cerradura = ""
+                        if(!simboloDeRetorno.isEmpty()){
+                            cerradura = simboloDeRetorno[0].Simbolo +"*"
+                        }
+                        var simboloAconcatenar = ""
+                        var x = 0
+                        while (x<transiciones.size){
+                            if(transiciones[x].EstadoInicial.NombreEstado.equals(transicionHacia.EstadoInicial.NombreEstado)&&
+                                    transiciones[x].EstadoFinal.NombreEstado.equals(transicionDesde.EstadoFinal.NombreEstado)){
+                                simboloAconcatenar = transiciones[x].Simbolo+"+"
+                                transiciones.removeAt(x)
                             }
-
-                            transiciones.add(Transicion(EstadoHacia[0].EstadoInicial,EstadoHacia[0].EstadoFinal,simbolo+"("+transicionHacia.Simbolo+SimboloRecursivoEstadoDesde+transicionDesde.Simbolo+")"))
+                            x++
                         }
-                        transiciones.add(Transicion(transicionHacia.EstadoInicial,transicionHacia.EstadoInicial,"("+transicionHacia.Simbolo+SimboloRecursivoEstadoDesde+transicionDesde.Simbolo+")"))
-
-                    }
-                    if(transicionHacia.EstadoInicial.NombreEstado.equals(transicionDesde.EstadoFinal.NombreEstado)==false){
-                        var EstadoDesde = transicionHaciaElMismo(estados[estado].NombreEstado,transiciones)
-                        var SimboloRecursivoEstadoDesde = ""
-                        if (!EstadoDesde.isEmpty()){
-                            SimboloRecursivoEstadoDesde = EstadoDesde[0].Simbolo+"*"
+                        var simbolo = simboloAconcatenar + "("+transicionHacia.Simbolo+cerradura+transicionDesde.Simbolo+")"
+                        transiciones.add(Transicion(transicionHacia.EstadoInicial,transicionDesde.EstadoFinal,simbolo))
+                       }else if (transicionDesde.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado)
+                            &&transicionHacia.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado)==false
+                            &&estados[estado].EsAcceptable==false){
+                        var simboloDeRetorno = transicionHaciaElMismo(estados[estado].NombreEstado,transiciones)
+                        var cerradura = ""
+                        if(!simboloDeRetorno.isEmpty()){
+                            cerradura = simboloDeRetorno[0].Simbolo +"*"
                         }
-                        var caminoDirecto = caminoDirecto(transicionHacia.EstadoInicial.NombreEstado,transicionDesde.EstadoFinal.NombreEstado)
-                        if(!caminoDirecto.Simbolo.equals("")){
-                            var simbolo =""
-                            var x = transiciones.size - 1
-                            while (x >= 0) {
-                                if (transiciones[x].EstadoInicial.NombreEstado.equals(caminoDirecto.EstadoInicial.NombreEstado)
-                                        || transiciones[x].EstadoInicial.NombreEstado.equals(caminoDirecto.EstadoInicial.NombreEstado)) {
-                                   simbolo= transiciones[x].Simbolo
-
-                                }
-                                x--
+                        var simboloAconcatenar = ""
+                        var x = 0
+                        while (x<transiciones.size){
+                            if(transiciones[x].EstadoInicial.NombreEstado.equals(transicionHacia.EstadoInicial.NombreEstado)&&
+                                    transiciones[x].EstadoFinal.NombreEstado.equals(transicionHacia.EstadoInicial.NombreEstado)){
+                                simboloAconcatenar = transiciones[x].Simbolo+"+"
+                                transiciones.removeAt(x)
                             }
-                            transiciones.add(Transicion(transicionDesde.EstadoInicial,transicionHacia.EstadoFinal,simbolo+"("+transicionHacia.Simbolo+SimboloRecursivoEstadoDesde+transicionDesde.Simbolo+")"))
-
+                            x++
                         }
-                        transiciones.add(Transicion(transicionDesde.EstadoInicial,transicionHacia.EstadoFinal,"("+transicionHacia.Simbolo+SimboloRecursivoEstadoDesde+transicionDesde.Simbolo+")"))
-
-                    }
-
+                        var simbolo = simboloAconcatenar + "("+transicionHacia.Simbolo+cerradura+transicionDesde.Simbolo+")"
+                        transiciones.add(Transicion(transicionHacia.EstadoInicial,transicionDesde.EstadoFinal,simbolo))
+}
                 }
             }
-
-            estado++
-        }
-        estado = 0
-        while (estado < estados.size) {
-            if (estados[estado].EsAcceptable == false && estados[estado].NombreEstado.equals(estadoInicial.NombreEstado) == false) {
+           if (estados[estado].EsAcceptable == false && estados[estado].NombreEstado.equals(estadoInicial.NombreEstado) == false) {
                 var x = transiciones.size - 1
                 while (x >= 0) {
                     if (transiciones[x].EstadoInicial.NombreEstado.equals(estados[estado].NombreEstado)
@@ -119,18 +147,45 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                     x--
                 }
             }
-          estado ++
+            estado++
         }
-        return transiciones
+        var Expresion = ""
+        for (estado in estados){
+            if (estado.NombreEstado.equals(estadoInicial.NombreEstado)){
+                if(estado.EsAcceptable){
+                    return "("+transicionHaciaElMismo(estadoInicial.NombreEstado,transiciones)[0].Simbolo+")*"
+                }
+            }
+        }
+            var R =""
+            var S = ""
+            var U =""
+            var T= ""
+            for (transicion in transiciones){
+                if(transicion.EstadoInicial.equals(estadoInicial.NombreEstado)&&transicion.EstadoFinal.equals(estadoInicial.NombreEstado)){
+                    R = transicion.Simbolo+"*"
+                }else if (transicion.EstadoFinal.equals(estadoInicial.NombreEstado)&&transicion.EstadoInicial.equals(estadoInicial.NombreEstado)==false){
+                    T = transicion.Simbolo
+                }else if(!transicion.EstadoInicial.equals(estadoInicial.NombreEstado)&&!transicion.EstadoFinal.equals(estadoInicial.NombreEstado)){
+                    U = transicion.Simbolo+"*"
+                }
+
+            }
+            S = transicionesDesdeEl(estadoInicial.NombreEstado, transiciones)[0].Simbolo
+
+            Expresion = "("+R+S+U+")("+T+R+S+U+")*"
+
+
+        return Expresion
     }
 
-    fun caminoDirecto(nombreEstado: String, nombreEstado1: String):Transicion {
+    fun caminoDirecto(nombreEstado: String, nombreEstado1: String, transiciones: MutableList<Transicion>):Transicion {
         var x = transiciones.size - 1
         var transicion :Transicion = Transicion(Estado("",false),Estado("",false),"")
         while (x >= 0) {
-            if (transiciones[x].EstadoInicial.NombreEstado.equals(nombreEstado)
-                    || transiciones[x].EstadoFinal.NombreEstado.equals(nombreEstado1)) {
-                transicion = transiciones[x]
+            if (this.transiciones[x].EstadoInicial.NombreEstado.equals(nombreEstado)
+                    && this.transiciones[x].EstadoFinal.NombreEstado.equals(nombreEstado1)) {
+                transicion = this.transiciones[x]
             }
             x--
         }
@@ -139,57 +194,33 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
 
 
     fun transicionHaciaElMismo(nombreEstado: String,transiciones: MutableList<Transicion>): MutableList<Transicion> {
-        var transicion :MutableList<Transicion> = mutableListOf()
+        var transicionlist :MutableList<Transicion> = mutableListOf()
         for(transiciones in transiciones){
-            if ( transiciones.EstadoInicial.NombreEstado.equals(nombreEstado)&&
-                    transiciones.EstadoFinal.NombreEstado.equals(nombreEstado)
-            ){
-                transicion.add(transiciones)
+            if ( transiciones.EstadoInicial.NombreEstado.equals(nombreEstado)&&transiciones.EstadoFinal.NombreEstado.equals(nombreEstado)){
+
+                transicionlist.add(transiciones)
             }
         }
-         var x=0
-         while (x < transiciones.size){
-             for(transicion in transicion){
-                 if (transicion.EstadoInicial.NombreEstado.equals(transiciones.get(x).EstadoInicial.NombreEstado)&&
-                         transicion.EstadoFinal.NombreEstado.equals(transiciones.get(x).EstadoFinal.NombreEstado)&&
-                         transicion.Simbolo.equals(transiciones.get(x).Simbolo)){
-                            transiciones.removeAt(x)
-                         }
-             }
-             x++
-         }
-        var simbolo = "("
-        if(transicion.size>1){
-           for(transicion1 in transicion){
-               if(transicion1.equals(transicion.get(transicion.size-1))){
-                   simbolo += transicion1.Simbolo
-               }else{
-                   simbolo += (transicion1.Simbolo+"+")
-               }
-           }
-            simbolo += ")"
-            transicion.clear()
-            transicion.add(Transicion(obtenerEstado(nombreEstado),obtenerEstado(nombreEstado),simbolo))
-        }
 
-        return transicion
+        return transicionlist
     }
 
-    fun  transicionesDesdeEl(nombreEstado: String): MutableList<Transicion> {
+    fun  transicionesDesdeEl(nombreEstado: String, transiciones: MutableList<Transicion>): MutableList<Transicion> {
         var lista : MutableList<Transicion> = mutableListOf()
         for (transicion in transiciones){
-            if (transicion.EstadoInicial.NombreEstado.equals(nombreEstado)==true && transicion.EstadoFinal.NombreEstado.equals(nombreEstado)==false){
+            if (transicion.EstadoInicial.NombreEstado.equals(nombreEstado)==true){
+                if(transicion.EstadoFinal.NombreEstado.equals(nombreEstado)==false){
                     lista.add(transicion)
-
+                }
             }
         }
         return lista
     }
 
-    fun  transicionesHaciaEl(nombreEstado: String): MutableList<Transicion> {
+    fun  transicionesHaciaEl(nombreEstado: String, transiciones: MutableList<Transicion>): MutableList<Transicion> {
         var lista : MutableList<Transicion> = mutableListOf()
             for (transicion in transiciones){
-                if (transicion.EstadoFinal.NombreEstado.equals(nombreEstado)){
+                if (transicion.EstadoFinal.NombreEstado.equals(nombreEstado)) {
                     lista.add(transicion)
                 }
             }
