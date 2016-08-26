@@ -306,8 +306,14 @@ public class JframeMenu : javax.swing.JFrame() {
         // TODO add your handling code here:
     }
     fun ConvertirExpresionRegularActionPerformed(evt: java.awt.event.ActionEvent) {
-        showMessage(dfa.CrearExpresionRegular())
-
+        if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
+            showMessage(dfa.CrearExpresionRegular())
+            return
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFA") {
+            showMessage("No disponible")
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE") {
+            showMessage("No disponible")
+        }
     }
     fun ConvertirDFAActionPerformed(evt: java.awt.event.ActionEvent) {
         // TODO add your handling code here:

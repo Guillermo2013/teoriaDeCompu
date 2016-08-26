@@ -68,4 +68,23 @@ open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estad
         }
         return false
     }
+
+    fun ShearchSate(name: String): Estado? {
+        for (s in transiciones) {
+            if (s.EstadoInicial.equals(name))
+                return s.EstadoInicial
+        }
+        return null
+    }
+    fun SearchDestiny(OriginState: Estado, Symbol: String): Estado? {
+        for (s in transiciones) {
+            if (s.Simbolo.equals(Symbol) && s.EstadoInicial.equals(OriginState)) {
+                val Destiny = ShearchSate(s.EstadoFinal.NombreEstado)
+                return Destiny
+            }
+
+
+        }
+        return null
+    }
 }
