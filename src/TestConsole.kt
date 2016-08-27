@@ -23,11 +23,9 @@ fun main(args : Array<String>) {
     DFA.insertarTransacion(Transicion(Estadoe,Estadof,"1"))
     DFA.insertarTransacion(Transicion(Estadof,Estadof,"0"))
     DFA.insertarTransacion(Transicion(Estadof,Estadof,"1"))
-    var minimador:DFAMinimizator = DFAMinimizator()
-    var DFAM = minimador.minimize(DFA)
-    for(transiciones in DFAM.transiciones){
-        println("EstadoInicial "+transiciones.EstadoInicial.NombreEstado+" EstadoFinal "+transiciones.EstadoFinal.NombreEstado+" Simbolo "+transiciones.Simbolo)
-    }
 
+    for (estados in DFA.estados){
+        println(estados.NombreEstado)
+    }
 
 }

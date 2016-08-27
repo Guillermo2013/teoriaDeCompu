@@ -226,4 +226,8 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
             }
         return lista
     }
+
+    fun Minimizar(){
+
+    }
 }
