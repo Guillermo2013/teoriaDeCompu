@@ -23,9 +23,9 @@ fun main(args : Array<String>) {
     DFA.insertarTransacion(Transicion(Estadoe,Estadof,"1"))
     DFA.insertarTransacion(Transicion(Estadof,Estadof,"0"))
     DFA.insertarTransacion(Transicion(Estadof,Estadof,"1"))
-
-    for (estados in DFA.estados){
+    DFA.Minimizar()
+   /* for (estados in DFA.estados){
         println(estados.NombreEstado)
-    }
+    }*/
 
 }
