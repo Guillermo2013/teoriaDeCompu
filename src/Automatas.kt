@@ -68,15 +68,5 @@ open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estad
         }
         return false
     }
-   fun  obtenerTransicion(estadoAbuscar:Estado,alfabeto :String,transiciones: MutableList<Transicion>):Estado{
-       var estado2 : Estado = Estado("",false)
-       for (transicion in transiciones){
-           if (transicion.EstadoInicial.equals(estadoAbuscar.NombreEstado)&&transicion.Simbolo.equals(alfabeto)){
-              return transicion.EstadoFinal
-           }
-       }
-
-       return estado2
-   }
 
 }

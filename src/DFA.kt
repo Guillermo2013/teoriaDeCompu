@@ -266,14 +266,73 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
     fun crearDFA(listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>):DFA {
         var dfa :DFA = DFA(alfabeto, mutableListOf(),Estado("",false), mutableListOf())
         crearEstados(dfa, listaDeEstadoIguales)
-        for(listaDeEstados in listaDeEstadoIguales){
+        dfa.estadoInicial = obtenerEstadoDeLista(estadoInicial,listaDeEstadoIguales)
+        for (estado in dfa.estados) {
             for (alfabeto in alfabeto) {
+                var entro = false
+                for (listaDeEstados in listaDeEstadoIguales) {
+                    var NombreAigualar = listaDeEstados[0].NombreEstado+","+listaDeEstados[1].NombreEstado
+                    if(estado.NombreEstado.equals(NombreAigualar)){
+                        CrearTransicionEstadosIguales(NombreAigualar, alfabeto, dfa, listaDeEstadoIguales, listaDeEstados)
+                        entro = true
+                    }
+                }
+                if(entro ==false){
+                    var  Estado = Estado("",false)
+                    for(transiciones in transiciones){
+                        if(transiciones.EstadoInicial.NombreEstado.equals(estado.NombreEstado)&&transiciones.Simbolo.equals(alfabeto)){
+                            Estado = obtenerEstadoDeLista(transiciones.EstadoFinal,listaDeEstadoIguales)
+                        }
+                    }
+                    if(!Estado.NombreEstado.equals("")){
+                        dfa.insertarTransacion(Transicion(dfa.obtenerEstado(estado.NombreEstado), dfa.obtenerEstado(Estado.NombreEstado), alfabeto))
+                    }
+                }
             }
         }
          return dfa
     }
 
-    private fun crearEstados(dfa: DFA, listaDeEstadoIguales: MutableList<MutableList<Estado>>) {
+    private fun CrearTransicionEstadosIguales(NombreAigualar: String, alfabeto: String, dfa: DFA, listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstados: MutableList<Estado>) {
+        var Destino1: Estado = Estado("", false)
+        var Destino2: Estado = Estado("", false)
+        for (transicion in this.transiciones) {
+            if (transicion.EstadoInicial.NombreEstado.equals(listaDeEstados[0].NombreEstado) && transicion.Simbolo.equals(alfabeto)) {
+                Destino1 = transicion.EstadoFinal
+            }
+            if (transicion.EstadoInicial.NombreEstado.equals(listaDeEstados[1].NombreEstado) && transicion.Simbolo.equals(alfabeto)) {
+                Destino2 = transicion.EstadoFinal
+            }
+        }
+        var Estado: Estado = Estado("", false)
+        if (Destino1.NombreEstado.equals(Destino2.NombreEstado)) {
+            Estado = obtenerEstadoDeLista(Destino1, listaDeEstadoIguales)
+        }
+        if (Destino1.NombreEstado.equals("")) {
+            Estado = obtenerEstadoDeLista(Destino2, listaDeEstadoIguales)
+        }
+        if (Destino2.NombreEstado.equals("")) {
+            Estado = obtenerEstadoDeLista(Destino1, listaDeEstadoIguales)
+        }
+        if (!Destino1.NombreEstado.equals(Destino2.NombreEstado)) {
+            var listaOrdenada = ordenarEstado(Destino1, Destino2)
+            Estado = dfa.obtenerEstado(listaOrdenada[0].NombreEstado + "," + listaOrdenada[1].NombreEstado)
+        }
+        dfa.insertarTransacion(Transicion(dfa.obtenerEstado(NombreAigualar), dfa.obtenerEstado(Estado.NombreEstado), alfabeto))
+    }
+
+    fun obtenerEstadoDeLista(destino1: Estado, listaDeEstadoIguales: MutableList<MutableList<Estado>>): Estado {
+    for (lista in listaDeEstadoIguales){
+        if (lista[0].NombreEstado.equals(destino1.NombreEstado)||lista[1].NombreEstado.equals(destino1.NombreEstado)){
+            var nombre = lista[0].NombreEstado+","+lista[1].NombreEstado
+            var aceptacion = obtenerEstado(lista[0].NombreEstado).EsAcceptable || obtenerEstado(lista[1].NombreEstado).EsAcceptable
+            return Estado(nombre,aceptacion)
+        }
+    }
+        return destino1
+    }
+
+    fun crearEstados(dfa: DFA, listaDeEstadoIguales: MutableList<MutableList<Estado>>) {
         for (estados in estados) {
             var encontrado = false
             for (estadosIguales in listaDeEstadoIguales) {

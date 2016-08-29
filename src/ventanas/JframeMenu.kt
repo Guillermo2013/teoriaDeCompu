@@ -366,6 +366,9 @@ public class JframeMenu : javax.swing.JFrame() {
 
     fun MinimizarBtnActionPerformed(evt: java.awt.event.ActionEvent) {
         if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
+            graph.model.beginUpdate()
+            graph.removeCells(graph.getChildVertices(graph.defaultParent))
+            graph.model.endUpdate()
             var listaDeEstadoIguales: MutableList<MutableList<Estado>> = mutableListOf()
             var listaDeEstadoNoIguales: MutableList<MutableList<Estado>> = mutableListOf()
             dfa = dfa.Minimizar(listaDeEstadoIguales,listaDeEstadoNoIguales)

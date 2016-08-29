@@ -17,6 +17,7 @@ fun main(args : Array<String>) {
     DFA.insertarTransacion(Transicion(Estadob,Estadog,"0"))
     DFA.insertarTransacion(Transicion(Estadob,Estadoc,"1"))
     DFA.insertarTransacion(Transicion(Estadoc,Estadoc,"1"))
+    DFA.insertarTransacion(Transicion(Estadoc,Estadoa,"0"))
     DFA.insertarTransacion(Transicion(Estadod,Estadoc,"0"))
     DFA.insertarTransacion(Transicion(Estadod,Estadog,"1"))
     DFA.insertarTransacion(Transicion(Estadoe,Estadoh,"0"))
