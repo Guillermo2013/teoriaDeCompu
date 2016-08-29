@@ -365,7 +365,27 @@ public class JframeMenu : javax.swing.JFrame() {
     }
 
     fun MinimizarBtnActionPerformed(evt: java.awt.event.ActionEvent) {
-        // TODO add your handling code here:
+        if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
+            var listaDeEstadoIguales: MutableList<MutableList<Estado>> = mutableListOf()
+            var listaDeEstadoNoIguales: MutableList<MutableList<Estado>> = mutableListOf()
+            dfa = dfa.Minimizar(listaDeEstadoIguales,listaDeEstadoNoIguales)
+            for (estados in dfa.estados) {
+                var inicial = false
+                if (estados.NombreEstado.equals(dfa.estadoInicial.NombreEstado)){
+                    inicial = true
+                }
+                var x =Random()
+                var y = Random()
+                estados.Vertex = Dibujar(true,inicial,estados.EsAcceptable,estados.NombreEstado, x.nextInt(500),y.nextInt(500),graph)
+
+            }
+            for (estados in dfa.transiciones){
+                graph.model.beginUpdate()
+                graph.insertEdge(parent, null,estados.Simbolo,dfa.obtenerEstado(estados.EstadoInicial.NombreEstado).Vertex,dfa.obtenerEstado(estados.EstadoFinal.NombreEstado).Vertex)
+                graph.model.endUpdate()
+
+            }
+        }
     }
     fun TipoAutomataComboxActionPerformed(evt:java.awt.event.ActionEvent)
     {

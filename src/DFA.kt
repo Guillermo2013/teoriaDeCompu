@@ -1,3 +1,4 @@
+import com.sun.org.apache.bcel.internal.generic.RETURN
 
 class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoInicial : Estado, transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones) {
 
@@ -229,22 +230,105 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         return lista
     }
 
-    fun Minimizar() {
-        var listaDeEstadoIguales: MutableList<MutableList<Estado>> = mutableListOf()
-        var listaDeEstadoNoIguales: MutableList<MutableList<Estado>> = mutableListOf()
+    fun Minimizar(listaDeEstadoIguales: MutableList<MutableList<Estado>>,listaDeEstadoNoIguales: MutableList<MutableList<Estado>>):DFA {
         var filaEstado = 0
-        verificarEstadosDeAceptacion(listaDeEstadoIguales,listaDeEstadoNoIguales)
-        while (filaEstado < estados.size - 1) {
+        verificarEstadosAceptados(listaDeEstadoIguales,  listaDeEstadoNoIguales)
+        while (filaEstado < estados.size-1) {
             var colummnaEstado = filaEstado + 1
             while (colummnaEstado < estados.size) {
                 verificarEstados(estados[colummnaEstado], estados[filaEstado], listaDeEstadoIguales, listaDeEstadoNoIguales)
+                colummnaEstado++
             }
-            colummnaEstado++
+            filaEstado++
         }
-        filaEstado++
+         quitarRepetidos(listaDeEstadoIguales)
+         quitarRepetidos(listaDeEstadoNoIguales)
+         return crearDFA(listaDeEstadoIguales,listaDeEstadoNoIguales)
     }
 
-    fun verificarEstadosDeAceptacion(listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>) {
+    fun quitarRepetidos(listaDeEstadoNoIguales: MutableList<MutableList<Estado>>) {
+        var x=0
+        while ( x <listaDeEstadoNoIguales.size){
+            var y = x+1
+            while  (y <listaDeEstadoNoIguales.size){
+                if (listaDeEstadoNoIguales[x][0].NombreEstado.equals(listaDeEstadoNoIguales[y][0].NombreEstado)&&
+                        listaDeEstadoNoIguales[x][1].NombreEstado.equals(listaDeEstadoNoIguales[y][1].NombreEstado)){
+                    listaDeEstadoNoIguales.removeAt(y)
+                }
+                y++
+            }
+            x++
+        }
+
+        return
+    }
+
+    fun crearDFA(listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>):DFA {
+        var dfa :DFA = DFA(alfabeto, mutableListOf(),Estado("",false), mutableListOf())
+        crearEstados(dfa, listaDeEstadoIguales)
+        for(listaDeEstados in listaDeEstadoIguales){
+            for (alfabeto in alfabeto) {
+            }
+        }
+         return dfa
+    }
+
+    private fun crearEstados(dfa: DFA, listaDeEstadoIguales: MutableList<MutableList<Estado>>) {
+        for (estados in estados) {
+            var encontrado = false
+            for (estadosIguales in listaDeEstadoIguales) {
+                if (estadosIguales[0].NombreEstado.equals(estados.NombreEstado) ||
+                        estadosIguales[1].NombreEstado.equals(estados.NombreEstado)) {
+                    encontrado = true
+                    var Estado1 = obtenerEstado(estadosIguales[0].NombreEstado)
+                    var Estado2 = obtenerEstado(estadosIguales[1].NombreEstado)
+                    var estado = false
+                    if (Estado1.EsAcceptable) {
+                        estado = true
+                    }
+                    if (Estado2.EsAcceptable) {
+                        estado = true
+                    }
+                    var nombre = estadosIguales[0].NombreEstado + "," + estadosIguales[1].NombreEstado
+                    dfa.insertarEstado(Estado(nombre, estado))
+                }
+            }
+            if (encontrado == false) {
+                dfa.insertarEstado(estados)
+            }
+        }
+    }
+
+    fun  ordenarEstado(estado: Estado, estado1: Estado): MutableList<Estado> {
+        var lista : MutableList<Estado> = mutableListOf()
+        for (estados in estados){
+            if (estados.NombreEstado.equals(estado.NombreEstado)) {
+                lista.add(estados)
+            }
+            if (estados.NombreEstado.equals(estado1.NombreEstado)) {
+                lista.add(estados)
+            }
+        }
+        if ( lista.size == 1){
+            lista.add(Estado("",false))
+        }
+        return lista
+    }
+
+    fun verificarEstadosAceptados( listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>) {
+        var EstadoFinales :MutableList<Estado> = mutableListOf()
+        var cantidadDeAceptados1 = 0
+        for (estado in estados) {
+            if (estado.EsAcceptable) {
+                cantidadDeAceptados1 += 1
+                EstadoFinales.add(estado)
+            }
+        }
+        for(estado in estados) {
+            if(!estado.NombreEstado.equals(EstadoFinales[0].NombreEstado)) {
+                listaDeEstadoNoIguales.add(ordenarEstado(estado, EstadoFinales[0]))
+            }
+        }
 
 
     }
@@ -257,61 +341,83 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
             for (transiciones in transiciones) {
                 if (transiciones.EstadoInicial.NombreEstado.equals(colummnaEstado.NombreEstado) &&
                         transiciones.Simbolo.equals(alfabeto)) {
-                    estadoFila.add(transiciones.EstadoFinal)
+                    estadoColummna.add(transiciones.EstadoFinal)
                 }
                 if (transiciones.EstadoInicial.NombreEstado.equals(filaEstado.NombreEstado) &&
                         transiciones.Simbolo.equals(alfabeto)) {
-                    estadoColummna.add(transiciones.EstadoFinal)
+                    estadoFila.add(transiciones.EstadoFinal)
                 }
             }
+
             if(estadoFila.size<estadoColummna.size){
                 estadoFila.add(Estado("",false))
-            }else if (estadoFila.size>estadoColummna.size){
+            }else if (estadoFila.size>estadoColummna.size) {
                 estadoColummna.add(Estado("",false))
             }
         }
+        var listaVerifiacar = obtenerLista(estadoFila,estadoColummna)
         var x=0
         var esIgual:MutableList<Boolean> = mutableListOf()
         while (x< alfabeto.size){
-            if (estadoFila[x].NombreEstado.equals("")&&!estadoColummna[x].NombreEstado.equals("")){
-                listaDeEstadoNoIguales.add(mutableListOf(filaEstado,colummnaEstado))
+            for(listaDeEstadoNoIguales1 in listaDeEstadoNoIguales){
+                if(listaVerifiacar[x][0].NombreEstado.equals(listaDeEstadoNoIguales1[0].NombreEstado)&&
+                        listaVerifiacar[x][1].NombreEstado.equals(listaDeEstadoNoIguales1[1].NombreEstado)){
+                    listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
+                    return false
+                }
             }
-            else if(estadoFila[x].NombreEstado.equals(estadoColummna[x].NombreEstado)){
+            if (listaVerifiacar[x][0].NombreEstado.equals("")&&!listaVerifiacar[x][1].NombreEstado.equals("")){
+                listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
+                return false
+            }
+            else if(!listaVerifiacar[x][0].NombreEstado.equals("")&&listaVerifiacar[x][1].NombreEstado.equals("")){
+                listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
+                return false
+            }
+            x++
+        }
+        x=0
+        while (x<alfabeto.size) {
+            if(listaVerifiacar[x][0].NombreEstado.equals(listaVerifiacar[x][1].NombreEstado)){
                 esIgual.add(true)
-            }
-            else if (!estadoFila[x].NombreEstado.equals(estadoColummna[x].NombreEstado)){
-                var entro  = false
+            }else if(!listaVerifiacar[x][0].NombreEstado.equals(listaVerifiacar[x][1].NombreEstado)){
+                var entro = false
                 for(listaDeEstadoIgual in listaDeEstadoIguales){
-                    if(!estadoFila[x].NombreEstado.equals(listaDeEstadoIgual[0].NombreEstado)&&
-                            !estadoColummna[x].NombreEstado.equals(listaDeEstadoIgual[0].NombreEstado)){
-                        listaDeEstadoIguales.add(mutableListOf(filaEstado,colummnaEstado))
+                    if(listaVerifiacar[x][0].NombreEstado.equals(listaDeEstadoIgual[0].NombreEstado)&&
+                            listaVerifiacar[x][1].NombreEstado.equals(listaDeEstadoIgual[1].NombreEstado)){
                         entro = true
                         esIgual.add(true)
                     }
                 }
-                for(listaDeEstadoNoIguales in listaDeEstadoNoIguales){
-                    if(estadoFila[x].NombreEstado.equals(listaDeEstadoNoIguales[0].NombreEstado)&&
-                            estadoColummna[x].NombreEstado.equals(listaDeEstadoNoIguales[0].NombreEstado)){
-                        entro = true
-                    }
-                }
-                if (entro == false){
-                  esIgual.add(verificarEstados(estadoFila[x],estadoColummna[x],listaDeEstadoIguales,listaDeEstadoNoIguales))
+                if (entro == false) {
+                    esIgual.add(verificarEstados(estadoFila[x], estadoColummna[x], listaDeEstadoIguales, listaDeEstadoNoIguales))
                 }
             }
             x++
         }
-        if(esIgual.size < alfabeto.size){
-            return false
-        }
-        if(esIgual.size == alfabeto.size){
-            for (igual in esIgual){
-                if (igual == false){
-                    return false
-                }
+        var contado =0
+        for(igualdad in esIgual){
+            if (igualdad == false){
+                listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
+                return false
             }
+            contado++
+        }
+        if (contado == alfabeto.size){
+            listaDeEstadoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
+            return true
         }
 
-        return false
+            return false
+    }
+
+     fun  obtenerLista(estadoFila: MutableList<Estado>, colummnaEstado: MutableList<Estado>): MutableList<MutableList<Estado>> {
+        var lista : MutableList<MutableList<Estado>> = mutableListOf()
+        var x = 0
+        while (x < alfabeto.size){
+            lista.add(ordenarEstado(estadoFila[x],colummnaEstado[x]))
+        x++
+        }
+        return lista
     }
 }
