@@ -342,6 +342,8 @@ public class JframeMenu : javax.swing.JFrame() {
              graph.model.endUpdate()
 
             }
+
+             (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "DFA"
         }else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE") {
 	    dfa = nfae.enDfa()
             for (estados in dfa.estados) {
@@ -361,7 +363,7 @@ public class JframeMenu : javax.swing.JFrame() {
 
             }
         }
-
+        (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "DFA"
     }
 
     fun MinimizarBtnActionPerformed(evt: java.awt.event.ActionEvent) {
