@@ -479,4 +479,22 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         }
         return lista
     }
+    fun union(Automata1 :DFA,Automata2:DFA):DFA{
+        var DFA = DFA(mutableListOf(), mutableListOf(),Estado("",false), mutableListOf())
+
+
+        return DFA
+    }
+    fun  crearAutomata(Automata1 :DFA,Automata2:DFA):DFA{
+        var DFA = DFA(mutableListOf(), mutableListOf(),Estado("",false), mutableListOf())
+        if(!Automata1.estadoInicial.NombreEstado.equals(Automata2.estadoInicial.NombreEstado)) {
+           DFA.estadoInicial.NombreEstado =  Automata1.estadoInicial.NombreEstado+","+Automata2.estadoInicial.NombreEstado
+            DFA.estadoInicial.EsAcceptable =(Automata1.estadoInicial.EsAcceptable || Automata2.estadoInicial.EsAcceptable)
+        }else {
+            DFA.estadoInicial= Automata1.estadoInicial
+        }
+
+
+        return DFA
+    }
 }
