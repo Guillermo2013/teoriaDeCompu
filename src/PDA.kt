@@ -20,6 +20,13 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
     var simboloInicial:String = ""
     var simboloActualDePila:String = ""
     var stack:Stack<String> = Stack()
+    fun AddTransition(v1: Estado, v2: Estado, name: String, v3: Any) {
+        this.transiciones.add(Transicion(v1, v2, name, v3))
+    }
+
+    fun AddEstado(name: String, vertex: Boolean) {
+        this.estados.add(Estado(name, vertex))
+    }
     fun EvaluarCadena(cadena:String):Boolean {
         var evaluar = cadena.toCharArray();
         if(!cadena.isEmpty()){

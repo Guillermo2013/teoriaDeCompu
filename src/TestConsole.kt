@@ -1,19 +1,24 @@
 import Archivo
+import automatas.PDA
+import com.mxgraph.model.mxCell
+import com.mxgraph.swing.mxGraphComponent
+import com.mxgraph.util.mxEvent
+import com.mxgraph.util.mxEventObject
+import com.mxgraph.view.mxGraph
+import java.awt.Color
 import java.awt.FlowLayout
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import javax.swing.JFileChooser;
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.io.File;
-import javax.swing.JButton
-import javax.swing.JDialog
-import javax.swing.JFrame
+import java.util.*
+import javax.swing.*
 
 /**
  * Created by PC on 04/08/2016.
  */
 fun main(args : Array<String>) {
-    val sfc = Archivo()
-    sfc.isVisible = true
 
 }
 

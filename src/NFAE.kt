@@ -21,7 +21,7 @@ class NFAE( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estado
     }
 
     fun validadTransicion(estadoInicial: Estado,estadoFinal:Estado,simbolo:String):Boolean   {
-        val transicionAinsertar = Transicion(estadoInicial,estadoFinal,simbolo)
+        val transicionAinsertar = Transicion(estadoInicial, estadoFinal, simbolo, v3)
         var insertar = false
         for (transiciones in transiciones){
             if(transiciones.EstadoInicial.equals(transicionAinsertar.EstadoInicial)&&
@@ -188,7 +188,7 @@ class NFAE( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estado
                 if (DFA.obtenerEstado(estadoFinal2).NombreEstado.equals("NULL")) {
                     DFA.insertarEstado(Estado(estadoFinal2, esEstadoDeAceptacion(estadoFinal2)))
                 }
-                DFA.insertarTransacion(Transicion(estadosDFA, DFA.obtenerEstado(estadoFinal2), letraDeAlfabeto))
+                DFA.insertarTransacion(Transicion(estadosDFA, DFA.obtenerEstado(estadoFinal2), letraDeAlfabeto, v3))
             }
         }
     }

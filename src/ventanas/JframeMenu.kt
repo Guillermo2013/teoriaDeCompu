@@ -121,7 +121,7 @@ public class JframeMenu : javax.swing.JFrame() {
                         graph.getModel().remove(evt.getProperty("cell"));
                         return@addListener
                     }
-                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion.toString())
+                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion.toString(), v3)
                     if (dfa.insertarTransacion(transicion)) {
                         showMessage("se agrego transicion correctamente")
                     }else{
@@ -140,7 +140,7 @@ public class JframeMenu : javax.swing.JFrame() {
                         graph.getModel().remove(evt.getProperty("cell"));
                         return@addListener
                     }
-                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion.toString())
+                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion.toString(), v3)
                     if (nfa.insertarTransacion(transicion)) {
                         showMessage("se agrego transicion correctamente")
                     }else{
@@ -163,7 +163,7 @@ public class JframeMenu : javax.swing.JFrame() {
                         graph.getModel().remove(evt.getProperty("cell"));
                         return@addListener
                     }
-                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion)
+                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion, v3)
                     if (nfae.insertarTransacion(transicion)) {
                         showMessage("se agrego transicion correctamente")
                     }else{

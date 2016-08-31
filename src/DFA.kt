@@ -33,7 +33,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
     }
 
     fun validadTransicion(estadoInicial: Estado, estadoFinal: Estado, simbolo: String): Boolean {
-        val transicionAinsertar = Transicion(estadoInicial, estadoFinal, simbolo)
+        val transicionAinsertar = Transicion(estadoInicial, estadoFinal, simbolo, v3)
         for (transiciones in transiciones) {
             if (transiciones.EstadoInicial.equals(transicionAinsertar.EstadoInicial) &&
                     transiciones.Simbolo.equals(transicionAinsertar.Simbolo)) {
@@ -90,9 +90,9 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                     ) {
                         var simboloDeRetorno = transicionHaciaElMismo(estados[estado].NombreEstado, transiciones)
                         if (!simboloDeRetorno.isEmpty()) {
-                            transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, "(" + transicionHacia.Simbolo + simboloDeRetorno[0].Simbolo + "*" + transicionDesde.Simbolo + ")"))
+                            transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, "(" + transicionHacia.Simbolo + simboloDeRetorno[0].Simbolo + "*" + transicionDesde.Simbolo + ")", v3))
                         } else {
-                            transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, "(" + transicionHacia.Simbolo + transicionDesde.Simbolo + ")"))
+                            transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, "(" + transicionHacia.Simbolo + transicionDesde.Simbolo + ")", v3))
 
                         }
                     } else if (caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo.equals("") == false &&
@@ -116,7 +116,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                             x++
                         }
                         var simbolo = simboloAconcatenar + "(" + transicionHacia.Simbolo + cerradura + transicionDesde.Simbolo + ")"
-                        transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, simbolo))
+                        transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, simbolo, v3))
                     } else if (transicionDesde.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado)
                             && transicionHacia.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado) == false
                             && estados[estado].EsAcceptable == false) {
@@ -136,7 +136,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                             x++
                         }
                         var simbolo = simboloAconcatenar + "(" + transicionHacia.Simbolo + cerradura + transicionDesde.Simbolo + ")"
-                        transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, simbolo))
+                        transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, simbolo, v3))
                     }
                 }
             }
@@ -184,7 +184,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
 
     fun caminoDirecto(nombreEstado: String, nombreEstado1: String, transiciones: MutableList<Transicion>): Transicion {
         var x = transiciones.size - 1
-        var transicion: Transicion = Transicion(Estado("", false), Estado("", false), "")
+        var transicion: Transicion = Transicion(Estado("", false), Estado("", false), "", v3)
         while (x >= 0) {
             if (this.transiciones[x].EstadoInicial.NombreEstado.equals(nombreEstado)
                     && this.transiciones[x].EstadoFinal.NombreEstado.equals(nombreEstado1)) {
@@ -285,7 +285,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                         }
                     }
                     if(!Estado.NombreEstado.equals("")){
-                        dfa.insertarTransacion(Transicion(dfa.obtenerEstado(estado.NombreEstado), dfa.obtenerEstado(Estado.NombreEstado), alfabeto))
+                        dfa.insertarTransacion(Transicion(dfa.obtenerEstado(estado.NombreEstado), dfa.obtenerEstado(Estado.NombreEstado), alfabeto, v3))
                     }
                 }
             }
@@ -318,7 +318,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
             var listaOrdenada = ordenarEstado(Destino1, Destino2)
             Estado = dfa.obtenerEstado(listaOrdenada[0].NombreEstado + "," + listaOrdenada[1].NombreEstado)
         }
-        dfa.insertarTransacion(Transicion(dfa.obtenerEstado(NombreAigualar), dfa.obtenerEstado(Estado.NombreEstado), alfabeto))
+        dfa.insertarTransacion(Transicion(dfa.obtenerEstado(NombreAigualar), dfa.obtenerEstado(Estado.NombreEstado), alfabeto, v3))
     }
 
     fun obtenerEstadoDeLista(destino1: Estado, listaDeEstadoIguales: MutableList<MutableList<Estado>>): Estado {
