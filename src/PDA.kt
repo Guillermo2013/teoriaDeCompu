@@ -20,15 +20,45 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
     var simboloInicial:String = ""
     var simboloActualDePila:String = ""
     var stack:Stack<String> = Stack()
+    fun insertarTransacion(Transiciones:Transicion):Boolean{
+        if (validadTransicion(Transiciones.EstadoInicial,Transiciones.EstadoFinal,Transiciones.Simbolo)){
+            transiciones.add(Transiciones)
+            return true
+        }
+        return false
+    }
+    fun validadTransicion(estadoInicial: Estado,estadoFinal:Estado,simbolo:String):Boolean   {
+        val transicionAinsertar = Transicion(estadoInicial,estadoFinal,simbolo)
+        for (transiciones in transiciones){
+            if(transiciones.EstadoInicial.equals(transicionAinsertar.EstadoInicial)&&
+                    transiciones.Simbolo.equals(transicionAinsertar.Simbolo)&&
+                    transiciones.EstadoFinal.equals(transicionAinsertar.EstadoFinal)) {
+                return false
+            }
+        }
+        return true
+    }
+    override  fun agregarAlfabeto(cadena:String) {
+    if (alfabeto.isEmpty()) {
+        this.alfabeto.add("ε")
+        var cadena = cadena.replace(',', ' ')
+        for (caracteres in cadena.toCharArray()) {
+            if (caracteres != ' ') {
+                this.alfabeto.add(caracteres.toString())
+            }
+        }
+
+    }
+}
+
     fun EvaluarCadena(cadena:String):Boolean {
-        var evaluar = cadena.toCharArray();
         if(!cadena.isEmpty()){
-            if(!verificarCadena(evaluar))
+            if(!verificarCadena(cadena))
                 return false;
         }
         var finales :MutableList<Estado> = mutableListOf()
         finales.add(estadoInicial);
-        finales = terminarDeEvaluarCadena(finales,evaluar,0);
+        finales = terminarDeEvaluarCadena(finales,cadena.toCharArray(),0);
         if(finales.isEmpty()){
             return false;
         }
@@ -40,12 +70,13 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
         return false;
     }
 
-    fun  verificarCadena( evaluar:CharArray):Boolean {
-        var stay=true;
+  override fun  verificarCadena( cadena:String):Boolean {
+      var evaluar = cadena.toCharArray()
+      var stay=true;
         var i=0
         while (i<evaluar.size){
         for(c in alfabeto){
-        if(c.equals(evaluar[i])){
+        if(c[0].equals(evaluar[i])){
             stay=true;
             break;
         }else{
@@ -64,18 +95,9 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
             return finales;
         for(transicion in transiciones){
         for( estado  in finales){
-        var t :MutableList<String> = mutableListOf()
-            var nombreDeSubEstado = ""
-            for(letra in transicion.Simbolo.toCharArray()){
-                if (letra != ','){
-                    nombreDeSubEstado +=letra
-                }
-                else{
-                    t.add(nombreDeSubEstado)
-                    nombreDeSubEstado = ""
-                }
-            }
-        if(t[0].equals(evaluar[pos].toString()) && t[1].equals(simboloActualDePila)
+            var t = transicion.Simbolo.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+
+            if(t[0].equals(evaluar[pos].toString()) && t[1].equals(simboloActualDePila)
                 && transicion.EstadoInicial.NombreEstado.equals(estado.NombreEstado)){
             stack.pop();
             if(t[2].contains(simboloInicial)){
@@ -112,18 +134,8 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
         var temporal:MutableList<Estado> = mutableListOf()
         for( transicion in transiciones){
         for( estado in finales){
-        var t :MutableList<String> = mutableListOf()
-            var nombreDeSubEstado = ""
-            for(letra in transicion.Simbolo.toCharArray()){
-                if (letra != ','){
-                    nombreDeSubEstado +=letra
-                }
-                else{
-                    t.add(nombreDeSubEstado)
-                    nombreDeSubEstado = ""
-                }
-            }
-        if(t[0].equals("ε") && t[1].equals(simboloActualDePila)
+            var t = transicion.Simbolo.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+            if(t[0].equals("ε") && t[1].equals(simboloActualDePila)
                 && transicion.EstadoInicial.NombreEstado.equals(estado.NombreEstado)){
             stack.pop()
             if(t[2].contains(simboloInicial)){

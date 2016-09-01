@@ -19,7 +19,10 @@ import NFAE
 import Estado
 import Transicion
 import Automatas
+import automatas.PDA
 import com.mxgraph.util.mxEventObject
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 
 public class JframeMenu : javax.swing.JFrame() {
     /**
@@ -43,63 +46,70 @@ public class JframeMenu : javax.swing.JFrame() {
     fun initComponents() {
 
         var name: String= " "
-        jLabel1 = javax.swing.JLabel();
-        jLabel2 = javax.swing.JLabel();
-        TipoAutomataCombox = javax.swing.JComboBox<String>();
-        CadenaTXTField = javax.swing.JTextField();
-        AlfabetoTXTField = javax.swing.JTextField();
-        EvaluarBtn = javax.swing.JButton();
-        MinimizarBtn = javax.swing.JButton();
-        AceptacionLabel = javax.swing.JLabel();
-        ConvertirDFA = javax.swing.JButton();
-        ConvertirExpresionRegular = javax.swing.JButton();
+        jLabel1 = JLabel();
+        jLabel2 = JLabel();
+        jLabel3 = JLabel();
+         TipoAutomataCombox = JComboBox<String>();
+        CadenaTXTField = JTextField();
+        AlfabetoTXTField = JTextField();
+        SimboloIniciaDePilaTXTField = JTextField()
+        EvaluarBtn = JButton();
+        MinimizarBtn = JButton();
+        AceptacionLabel = JLabel();
+        ConvertirDFA = JButton();
+        ConvertirExpresionRegular = JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         (jLabel1 as JLabel).setText("Alfabeto ejemplo: 1,0 ");
-
+        (jLabel3 as JLabel).setText("Simbolo Inicial de Pila");
         (jLabel2 as JLabel).setText("Cadena");
         var vector: Vector<String> = Vector<String>()
         vector.add("DFA")
         vector.add("NFA")
         vector.add("NFAE")
+        vector.add("PDA")
+        (TipoAutomataCombox as JComboBox<String>).setModel(DefaultComboBoxModel<String>((vector)))
 
-        (TipoAutomataCombox as JComboBox<String>).setModel(javax.swing.DefaultComboBoxModel<String>((vector)))
-
-        (TipoAutomataCombox as JComboBox<String>).addActionListener(java.awt.event.ActionListener() {
-            fun actionPerformed(evt:java.awt.event.ActionEvent ) {
+        (TipoAutomataCombox as JComboBox<String>).addActionListener(ActionListener() {
+            fun actionPerformed(evt: ActionEvent ) {
                 TipoAutomataComboxActionPerformed(evt);
             }
         });
 
-        (CadenaTXTField as JTextField).addActionListener(java.awt.event.ActionListener() {
-            fun actionPerformed(evt: java.awt.event.ActionEvent) {
+        (CadenaTXTField as JTextField).addActionListener(ActionListener() {
+            fun actionPerformed(evt: ActionEvent) {
                 CadenaTXTFieldActionPerformed(evt);
             }
         });
 
-        (AlfabetoTXTField as JTextField).addActionListener(java.awt.event.ActionListener() {
-            fun actionPerformed(evt: java.awt.event.ActionEvent) {
+        (SimboloIniciaDePilaTXTField as JTextField).addActionListener(ActionListener() {
+            fun actionPerformed(evt: ActionEvent) {
+                SimboloIniciaDePilaTXTFieldActionPerformed(evt);
+            }
+        });
+        (AlfabetoTXTField as JTextField).addActionListener(ActionListener() {
+            fun actionPerformed(evt: ActionEvent) {
                 AlfabetTXTFieldActionPerformed(evt);
             }
         });
         (EvaluarBtn as JButton).setText("Evaluar");
-        (EvaluarBtn as JButton).addActionListener( {evt:java.awt.event.ActionEvent->
+        (EvaluarBtn as JButton).addActionListener( {evt: ActionEvent->
                  EvaluarBtnActionPerformed(evt)
         });
 
         (MinimizarBtn as JButton).setText("Minimizar");
-        (MinimizarBtn as JButton).addActionListener( {evt:java.awt.event.ActionEvent->
+        (MinimizarBtn as JButton).addActionListener( {evt: ActionEvent->
 
                 MinimizarBtnActionPerformed(evt);
 
         });
         (ConvertirDFA as JButton).setText("Convertir a DFA");
-        (ConvertirDFA as JButton).addActionListener(  {evt:java.awt.event.ActionEvent->
+        (ConvertirDFA as JButton).addActionListener(  {evt: ActionEvent->
                 ConvertirDFAActionPerformed(evt);
         });
         (ConvertirExpresionRegular as JButton).setText("Convertir a ER");
-        (ConvertirExpresionRegular as JButton).addActionListener(  {evt:java.awt.event.ActionEvent->
+        (ConvertirExpresionRegular as JButton).addActionListener(  {evt: ActionEvent->
             ConvertirExpresionRegularActionPerformed(evt);
         });
         graph.setAllowLoops(true)
@@ -173,6 +183,30 @@ public class JframeMenu : javax.swing.JFrame() {
                     }
                     var name = valorDeTransicion.toString();
                     edge.setValue(name);
+                }else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="PDA"){
+                    pda.agregarAlfabeto((AlfabetoTXTField?.text) as String)
+                    var edge =evt.getProperty("cell")as(mxCell)
+                    var v1 = pda.obtenerEstado(origen.value.toString());
+                    var v2 = pda.obtenerEstado(destino.value.toString());
+                    if(v2 == null){
+                        graph.getModel().remove(evt.getProperty("cell"));
+                        return@addListener
+                    }
+                    var valorDeTransicion = escogerTransicion();
+                    if (pda.verificarLetra(valorDeTransicion.toCharArray()[0].toString()) == false) {
+                        graph.getModel().remove(evt.getProperty("cell"));
+                        return@addListener
+                    }
+                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion)
+                    if (pda.insertarTransacion(transicion)) {
+                        showMessage("se agrego transicion correctamente")
+                    }else{
+                        showMessage("ya existe la transicion ")
+                        graph.getModel().remove(evt.getProperty("cell"));
+                        return@addListener
+                    }
+                    var name = valorDeTransicion.toString()
+                    edge.setValue(name);
                 }
 
         }catch(e:TypeCastException){
@@ -189,19 +223,32 @@ public class JframeMenu : javax.swing.JFrame() {
                     if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
                         if(dfa.estadoInicial.NombreEstado!=""){
                             frame.EstadoInicialRadioBtn?.setVisible(false)
+                            SimboloIniciaDePilaTXTField?.setVisible(false)
+                            jLabel3?.setVisible(false)
+
                         }
 
                     } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFA") {
                         if(nfa.estadoInicial.NombreEstado!=""){
                             frame.EstadoInicialRadioBtn?.setVisible(false)
+                            SimboloIniciaDePilaTXTField?.setVisible(false)
+                            jLabel3?.setVisible(false)
+
                         }
                     } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE") {
-                        if(nfae.estadoInicial.NombreEstado!=""){
+                        if(nfae.estadoInicial.NombreEstado!="") {
                             frame.EstadoInicialRadioBtn?.setVisible(false)
+                            SimboloIniciaDePilaTXTField?.setVisible(false)
+                            jLabel3?.setVisible(false)
+                        }
+                        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
+                            if (pda.estadoInicial.NombreEstado != "") {
+                                frame.EstadoInicialRadioBtn?.setVisible(false)
+                            }
                         }
                     }
                 }
-            }
+
             override fun mousePressed(e:MouseEvent ) {
                 // TODO Auto-generated method stub
                 var Exito :Boolean = false
@@ -217,21 +264,29 @@ public class JframeMenu : javax.swing.JFrame() {
                                 if(inicial==true&&Exito==true){
                                    dfa.estadoInicial = EstadoAinsertar
                                 }
-				dfa.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
+                            dfa.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
                             }else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="NFA"){
                                 Exito = nfa.insertarEstado(EstadoAinsertar)
                                 if(inicial==true&&Exito==true){
                                     nfa.estadoInicial = EstadoAinsertar
 
                                 }
-				nfa.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
-                            }else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="NFAE"){
-                                Exito = nfae.insertarEstado(EstadoAinsertar)
+				            nfa.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
+                            }
+                            else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="NFAE"){
+
                                 if(inicial==true&&Exito==true){
                                     nfae.estadoInicial = EstadoAinsertar
-				 }
-				nfae.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
+				            }
+				            nfae.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
                                
+                            }
+                            else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="PDA"){
+                                Exito = pda.insertarEstado(EstadoAinsertar)
+                                if(inicial==true&&Exito==true){
+                                    pda.estadoInicial = EstadoAinsertar
+                                }
+                            pda.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
                             }
                             name = ""
                             frame.NombreEstadoTXTField?.text = ""
@@ -242,29 +297,32 @@ public class JframeMenu : javax.swing.JFrame() {
                 }
             }
         });
-        var layout: javax.swing.GroupLayout = javax.swing.GroupLayout(getContentPane());
+        var layout: GroupLayout = GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addGap(20, 20, 20)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                         .addComponent(jLabel2)
                                         .addComponent(jLabel1))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                         .addGroup(layout.createSequentialGroup()
-                                                .addComponent(AlfabetoTXTField, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE.toInt())
-                                                .addComponent(TipoAutomataCombox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addComponent(graphComponent, 600, javax.swing.GroupLayout.DEFAULT_SIZE, 0)
+                                                .addComponent(AlfabetoTXTField, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(20, 20, 20)
+                                                .addComponent(jLabel3)
+                                                .addComponent(SimboloIniciaDePilaTXTField, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE.toInt())
+                                                .addComponent(TipoAutomataCombox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 0)
                                         .addGroup(layout.createSequentialGroup()
-                                                .addComponent(CadenaTXTField, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(CadenaTXTField, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                                  .addGap(18, 18, 18)
                                                 .addComponent(EvaluarBtn)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                                 .addComponent(AceptacionLabel)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 203, Short.MAX_VALUE.toInt())
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 203, Short.MAX_VALUE.toInt())
                                                 .addComponent(ConvertirDFA)
                                                 .addGap(18, 18, 18)
                                                 .addComponent(ConvertirExpresionRegular)
@@ -273,18 +331,20 @@ public class JframeMenu : javax.swing.JFrame() {
                                                 .addGap(26, 26, 26))
         );
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addGap(17, 17, 17)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel1)
-                                        .addComponent(TipoAutomataCombox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(AlfabetoTXTField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addComponent(graphComponent, 600, javax.swing.GroupLayout.DEFAULT_SIZE, 500)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 456, Short.MAX_VALUE.toInt())
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(TipoAutomataCombox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel3)
+                                        .addComponent(SimboloIniciaDePilaTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(AlfabetoTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 500)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 456, Short.MAX_VALUE.toInt())
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel2)
-                                        .addComponent(CadenaTXTField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(CadenaTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(EvaluarBtn)
                                         .addComponent(MinimizarBtn)
                                         .addComponent(AceptacionLabel)
@@ -396,6 +456,9 @@ public class JframeMenu : javax.swing.JFrame() {
     {
         // TODO add your handling code here:
     }
+    fun SimboloIniciaDePilaTXTFieldActionPerformed(evt: ActionEvent) {
+        // TODO add your handling code here:
+    }
     fun EvaluarBtnActionPerformed( evt:java.awt.event.ActionEvent) {
         // TODO add your handling code here:
 
@@ -411,6 +474,12 @@ public class JframeMenu : javax.swing.JFrame() {
         } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE") {
             resultado = nfae.evaluarCadena(cadena).toString()
             cadenaPermitida = nfae.verificarCadena(cadena)
+        }
+        else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
+            pda.simboloActualDePila = SimboloIniciaDePilaTXTField?.text.toString()
+            pda.simboloInicial =  SimboloIniciaDePilaTXTField?.text.toString()
+            resultado = pda.EvaluarCadena(cadena).toString()
+            cadenaPermitida = pda.verificarCadena(cadena)
         }
         if (cadenaPermitida == false) {
             showMessage("La cadena tiene caracteres que no son del afabeto")
@@ -472,6 +541,25 @@ public class JframeMenu : javax.swing.JFrame() {
 	return v1
     }
 
+    private fun escogerTransicion(): String {
+        var nombre = ""
+        while (true) {
+            val name = JOptionPane.showInputDialog("Digite nombre de Transicion:")
+            if (name == null || name.isEmpty()) {
+                showMessage("No se ingreso nada!!")
+                break
+            }
+            val na = name.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            if (na.size != 3) {
+                showMessage("Se debe ingresar caracter a consumir, pila a consumir, pila a agregar\nEjemplo: 0,z0,0z0")
+            } else if (na.size == 3) {
+                nombre = name
+                break
+            }
+        }
+        return nombre
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -480,18 +568,21 @@ public class JframeMenu : javax.swing.JFrame() {
     var AceptacionLabel: JLabel? = null
     var AlfabetoTXTField: JTextField? = null
     var CadenaTXTField : JTextField? = null
+    var SimboloIniciaDePilaTXTField : JTextField? = null
     var EvaluarBtn: JButton? = null
     var MinimizarBtn: JButton? = null
     var TipoAutomataCombox: JComboBox<String>? = null
     var jLabel1: JLabel? = null
     var  jLabel2: JLabel? = null
+    var  jLabel3: JLabel? = null
     var ConvertirDFA: JButton? = null
     var ConvertirExpresionRegular: JButton? = null
     var dfa: DFA =DFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfa: NFA = NFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfae: NFAE = NFAE( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
+    var pda : PDA = PDA(mutableListOf(),mutableListOf(),Estado("",false), mutableListOf())
 
 
-       // End of variables declaration
+    // End of variables declaration
 }
 
