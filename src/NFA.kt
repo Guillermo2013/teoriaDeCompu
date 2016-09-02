@@ -3,7 +3,7 @@
  */
 open class NFA( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones) {
      fun validadTransicion(estadoInicial: Estado,estadoFinal:Estado,simbolo:String):Boolean   {
-        val transicionAinsertar = Transicion(estadoInicial, estadoFinal, simbolo, v3)
+        val transicionAinsertar = Transicion(estadoInicial,estadoFinal,simbolo)
         for (transiciones in transiciones){
             if(transiciones.EstadoInicial.equals(transicionAinsertar.EstadoInicial)&&
                     transiciones.Simbolo.equals(transicionAinsertar.Simbolo)&&
@@ -82,7 +82,7 @@ open class NFA( alfabeto : MutableList<String>,estados : MutableList<Estado> ,es
                 if (DFA.obtenerEstado(estadoNuevo).NombreEstado.equals("NULL")) {
                     DFA.insertarEstado(Estado(estadoNuevo, esEstadoDeAceptacion(estadoNuevo)))
                 }
-                DFA.insertarTransacion(Transicion(estadosDFA, DFA.obtenerEstado(estadoNuevo), letraDeAlfabeto, v3))
+                DFA.insertarTransacion(Transicion(estadosDFA, DFA.obtenerEstado(estadoNuevo), letraDeAlfabeto))
             }
         }
     }
