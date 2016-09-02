@@ -16,15 +16,23 @@ fun main(args : Array<String>) {
     var Estado0 = Estado("0",false)
     var Estado1 = Estado("1",false)
     var Estado2 = Estado("2",true)
-    var PDA : PDA = PDA(mutableListOf("a","b"),mutableListOf(Estado0,Estado1,Estado2),Estado1, mutableListOf())
-    PDA.simboloInicial = "Z"
-    PDA.simboloActualDePila = "Z"
-    PDA.insertarTransacion(Transicion(Estado0,Estado0,"a,Z,AZ"))
-    PDA.insertarTransacion(Transicion(Estado0,Estado0,"a,A,AA"))
-    PDA.insertarTransacion(Transicion(Estado0,Estado1,"b,A,ε"))
-    PDA.insertarTransacion(Transicion(Estado0,Estado2,"ε,Z,Z"))
-    PDA.insertarTransacion(Transicion(Estado1,Estado1,"b,A,ε"))
-    PDA.insertarTransacion(Transicion(Estado1,Estado2,"ε,Z,Z"))
-    print(PDA.EvaluarCadena("aabb"))
+    var DFA1 : DFA = DFA(mutableListOf("1","0"),mutableListOf(Estado0,Estado1,Estado2),Estado1, mutableListOf())
+    DFA1.insertarTransacion(Transicion(Estado0,Estado0,"0"))
+    DFA1.insertarTransacion(Transicion(Estado0,Estado1,"1"))
+    DFA1.insertarTransacion(Transicion(Estado1,Estado2,"0"))
+    DFA1.insertarTransacion(Transicion(Estado1,Estado0,"1"))
+    DFA1.insertarTransacion(Transicion(Estado2,Estado1,"0"))
+    DFA1.insertarTransacion(Transicion(Estado2,Estado2,"1"))
+    Estado2.EsAcceptable = false
+    Estado1.EsAcceptable = true
+    var DFA2 : DFA = DFA(mutableListOf("1","0"),mutableListOf(Estado0,Estado1),Estado1, mutableListOf())
+    DFA1.insertarTransacion(Transicion(Estado0,Estado0,"1"))
+    DFA1.insertarTransacion(Transicion(Estado0,Estado1,"0"))
+    DFA1.insertarTransacion(Transicion(Estado1,Estado0,"0"))
+    DFA1.insertarTransacion(Transicion(Estado1,Estado1,"1"))
+    var DFA3 : DFA = DFA(mutableListOf(),mutableListOf(),Estado("",false), mutableListOf())
+    
+
+
 }
 

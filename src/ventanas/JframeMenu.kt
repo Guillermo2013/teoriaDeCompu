@@ -478,6 +478,7 @@ public class JframeMenu : javax.swing.JFrame() {
         else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
             pda.simboloActualDePila = SimboloIniciaDePilaTXTField?.text.toString()
             pda.simboloInicial =  SimboloIniciaDePilaTXTField?.text.toString()
+            pda.stack.push(pda.simboloActualDePila);
             resultado = pda.EvaluarCadena(cadena).toString()
             cadenaPermitida = pda.verificarCadena(cadena)
         }

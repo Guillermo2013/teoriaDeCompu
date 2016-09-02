@@ -493,8 +493,10 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         }else {
             DFA.estadoInicial= Automata1.estadoInicial
         }
-
-
+        DFA.transiciones = (Automata1.transiciones.toMutableList() + Automata2.transiciones.toMutableList()).toMutableList()
+        for (transicion in DFA.transiciones){
+            println("Estado Inicial:"+transicion.EstadoInicial.NombreEstado+" EstadoFinal:"+transicion.EstadoFinal.NombreEstado+" simbolo:"+transicion.Simbolo)
+        }
         return DFA
     }
 }
