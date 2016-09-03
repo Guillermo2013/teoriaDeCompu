@@ -486,17 +486,67 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         return DFA
     }
     fun  crearAutomata(Automata1 :DFA,Automata2:DFA):DFA{
-        var DFA = DFA(mutableListOf(), mutableListOf(),Estado("",false), mutableListOf())
+        var DFA = DFA(mutableListOf("0","1"), mutableListOf(),Estado("",false), mutableListOf())
+        var Estado = Estado("",false)
         if(!Automata1.estadoInicial.NombreEstado.equals(Automata2.estadoInicial.NombreEstado)) {
-           DFA.estadoInicial.NombreEstado =  Automata1.estadoInicial.NombreEstado+","+Automata2.estadoInicial.NombreEstado
-            DFA.estadoInicial.EsAcceptable =(Automata1.estadoInicial.EsAcceptable || Automata2.estadoInicial.EsAcceptable)
+            Estado.NombreEstado =  Automata1.estadoInicial.NombreEstado+","+Automata2.estadoInicial.NombreEstado
+            Estado.EsAcceptable =(Automata1.estadoInicial.EsAcceptable || Automata2.estadoInicial.EsAcceptable)
         }else {
-            DFA.estadoInicial= Automata1.estadoInicial
+            Estado = Automata1.estadoInicial
         }
-        DFA.transiciones = (Automata1.transiciones.toMutableList() + Automata2.transiciones.toMutableList()).toMutableList()
-        for (transicion in DFA.transiciones){
-            println("Estado Inicial:"+transicion.EstadoInicial.NombreEstado+" EstadoFinal:"+transicion.EstadoFinal.NombreEstado+" simbolo:"+transicion.Simbolo)
+        DFA.insertarEstado(Estado)
+        DFA.estadoInicial = Estado
+        var x = 0
+        while (x<DFA.estados.size){
+           var Estado = DFA.estados[x].NombreEstado.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+            for(alfabeto in DFA.alfabeto){
+              var EstadoAinsertar :MutableList<String> = mutableListOf()
+                if(Estado.size > 1) {
+                 EstadoAinsertar = obtenerTransiciones(Estado[0], Estado[1],Automata1.transiciones,Automata2.transiciones,alfabeto)
+                }else if (Estado.size == 1) {
+                    EstadoAinsertar = obtenerTransiciones(Estado[0], Estado[0], Automata1.transiciones, Automata2.transiciones, alfabeto)
+                }
+
+                if(EstadoAinsertar.size == 1){
+                    if(DFA.obtenerEstado(EstadoAinsertar.get(0)).NombreEstado.equals("NULL")){
+                        DFA.insertarEstado(Estado(EstadoAinsertar[0],false))
+                    }
+                  DFA.insertarTransacion(Transicion(DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[0]),alfabeto))
+                }else if (EstadoAinsertar.size >1){
+                    if(!DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]).NombreEstado.equals("NULL")){
+                        DFA.insertarTransacion(Transicion( DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]),alfabeto))
+                    }else if(!DFA.obtenerEstado(EstadoAinsertar[1]+","+EstadoAinsertar[0]).NombreEstado.equals("NULL")){
+                          DFA.insertarTransacion(Transicion( DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[1]+","+EstadoAinsertar[0]),alfabeto))
+                    }else if (DFA.obtenerEstado(EstadoAinsertar[1]+","+EstadoAinsertar[0]).NombreEstado.equals("NULL")&&
+                            DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]).NombreEstado.equals("NULL")){
+                        DFA.insertarEstado(Estado(EstadoAinsertar[0]+","+EstadoAinsertar[1],false))
+                       DFA.insertarTransacion(Transicion( DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]),alfabeto))
+                    }
+                }
+            }
+            x++
         }
         return DFA
+    }
+
+    fun obtenerTransiciones(s: String, s1: String, transiciones: MutableList<Transicion>, transiciones1: MutableList<Transicion>, alfabeto: String): MutableList<String> {
+        var EstadoAinsertar :MutableList<String> = mutableListOf()
+        for(transicion1 in transiciones){
+            if(transicion1.EstadoInicial.NombreEstado.equals(s)&&transicion1.Simbolo.equals(alfabeto)){
+                EstadoAinsertar.add(transicion1.EstadoFinal.NombreEstado)
+            }
+        }
+        for(transicion2 in transiciones1){
+            if(transicion2.EstadoInicial.NombreEstado.equals(s1)&&transicion2.Simbolo.equals(alfabeto)){
+                EstadoAinsertar.add(transicion2.EstadoFinal.NombreEstado)
+            }
+        }
+        if(EstadoAinsertar.size>1){
+            if(EstadoAinsertar[0]==EstadoAinsertar[1]){
+                EstadoAinsertar.removeAt(1)
+            }
+        }
+
+        return EstadoAinsertar
     }
 }
