@@ -230,10 +230,10 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         return lista
     }
 
-    fun Minimizar(listaDeEstadoIguales: MutableList<MutableList<Estado>>,listaDeEstadoNoIguales: MutableList<MutableList<Estado>>):DFA {
+    fun Minimizar(listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>): DFA {
         var filaEstado = 0
-        verificarEstadosAceptados(listaDeEstadoIguales,  listaDeEstadoNoIguales)
-        while (filaEstado < estados.size-1) {
+        verificarEstadosAceptados(listaDeEstadoIguales, listaDeEstadoNoIguales)
+        while (filaEstado < estados.size - 1) {
             var colummnaEstado = filaEstado + 1
             while (colummnaEstado < estados.size) {
                 verificarEstados(estados[colummnaEstado], estados[filaEstado], listaDeEstadoIguales, listaDeEstadoNoIguales)
@@ -241,18 +241,18 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
             }
             filaEstado++
         }
-         quitarRepetidos(listaDeEstadoIguales)
-         quitarRepetidos(listaDeEstadoNoIguales)
-         return crearDFA(listaDeEstadoIguales,listaDeEstadoNoIguales)
+        quitarRepetidos(listaDeEstadoIguales)
+        quitarRepetidos(listaDeEstadoNoIguales)
+        return crearDFA(listaDeEstadoIguales, listaDeEstadoNoIguales)
     }
 
     fun quitarRepetidos(listaDeEstadoNoIguales: MutableList<MutableList<Estado>>) {
-        var x=0
-        while ( x <listaDeEstadoNoIguales.size){
-            var y = x+1
-            while  (y <listaDeEstadoNoIguales.size){
-                if (listaDeEstadoNoIguales[x][0].NombreEstado.equals(listaDeEstadoNoIguales[y][0].NombreEstado)&&
-                        listaDeEstadoNoIguales[x][1].NombreEstado.equals(listaDeEstadoNoIguales[y][1].NombreEstado)){
+        var x = 0
+        while (x < listaDeEstadoNoIguales.size) {
+            var y = x + 1
+            while (y < listaDeEstadoNoIguales.size) {
+                if (listaDeEstadoNoIguales[x][0].NombreEstado.equals(listaDeEstadoNoIguales[y][0].NombreEstado) &&
+                        listaDeEstadoNoIguales[x][1].NombreEstado.equals(listaDeEstadoNoIguales[y][1].NombreEstado)) {
                     listaDeEstadoNoIguales.removeAt(y)
                 }
                 y++
@@ -263,34 +263,34 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         return
     }
 
-    fun crearDFA(listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>):DFA {
-        var dfa :DFA = DFA(alfabeto, mutableListOf(),Estado("",false), mutableListOf())
+    fun crearDFA(listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>): DFA {
+        var dfa: DFA = DFA(alfabeto, mutableListOf(), Estado("", false), mutableListOf())
         crearEstados(dfa, listaDeEstadoIguales)
-        dfa.estadoInicial = obtenerEstadoDeLista(estadoInicial,listaDeEstadoIguales)
+        dfa.estadoInicial = obtenerEstadoDeLista(estadoInicial, listaDeEstadoIguales)
         for (estado in dfa.estados) {
             for (alfabeto in alfabeto) {
                 var entro = false
                 for (listaDeEstados in listaDeEstadoIguales) {
-                    var NombreAigualar = listaDeEstados[0].NombreEstado+","+listaDeEstados[1].NombreEstado
-                    if(estado.NombreEstado.equals(NombreAigualar)){
+                    var NombreAigualar = listaDeEstados[0].NombreEstado + "," + listaDeEstados[1].NombreEstado
+                    if (estado.NombreEstado.equals(NombreAigualar)) {
                         CrearTransicionEstadosIguales(NombreAigualar, alfabeto, dfa, listaDeEstadoIguales, listaDeEstados)
                         entro = true
                     }
                 }
-                if(entro ==false){
-                    var  Estado = Estado("",false)
-                    for(transiciones in transiciones){
-                        if(transiciones.EstadoInicial.NombreEstado.equals(estado.NombreEstado)&&transiciones.Simbolo.equals(alfabeto)){
-                            Estado = obtenerEstadoDeLista(transiciones.EstadoFinal,listaDeEstadoIguales)
+                if (entro == false) {
+                    var Estado = Estado("", false)
+                    for (transiciones in transiciones) {
+                        if (transiciones.EstadoInicial.NombreEstado.equals(estado.NombreEstado) && transiciones.Simbolo.equals(alfabeto)) {
+                            Estado = obtenerEstadoDeLista(transiciones.EstadoFinal, listaDeEstadoIguales)
                         }
                     }
-                    if(!Estado.NombreEstado.equals("")){
+                    if (!Estado.NombreEstado.equals("")) {
                         dfa.insertarTransacion(Transicion(dfa.obtenerEstado(estado.NombreEstado), dfa.obtenerEstado(Estado.NombreEstado), alfabeto))
                     }
                 }
             }
         }
-         return dfa
+        return dfa
     }
 
     private fun CrearTransicionEstadosIguales(NombreAigualar: String, alfabeto: String, dfa: DFA, listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstados: MutableList<Estado>) {
@@ -322,13 +322,13 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
     }
 
     fun obtenerEstadoDeLista(destino1: Estado, listaDeEstadoIguales: MutableList<MutableList<Estado>>): Estado {
-    for (lista in listaDeEstadoIguales){
-        if (lista[0].NombreEstado.equals(destino1.NombreEstado)||lista[1].NombreEstado.equals(destino1.NombreEstado)){
-            var nombre = lista[0].NombreEstado+","+lista[1].NombreEstado
-            var aceptacion = obtenerEstado(lista[0].NombreEstado).EsAcceptable || obtenerEstado(lista[1].NombreEstado).EsAcceptable
-            return Estado(nombre,aceptacion)
+        for (lista in listaDeEstadoIguales) {
+            if (lista[0].NombreEstado.equals(destino1.NombreEstado) || lista[1].NombreEstado.equals(destino1.NombreEstado)) {
+                var nombre = lista[0].NombreEstado + "," + lista[1].NombreEstado
+                var aceptacion = obtenerEstado(lista[0].NombreEstado).EsAcceptable || obtenerEstado(lista[1].NombreEstado).EsAcceptable
+                return Estado(nombre, aceptacion)
+            }
         }
-    }
         return destino1
     }
 
@@ -358,9 +358,9 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         }
     }
 
-    fun  ordenarEstado(estado: Estado, estado1: Estado): MutableList<Estado> {
-        var lista : MutableList<Estado> = mutableListOf()
-        for (estados in estados){
+    fun ordenarEstado(estado: Estado, estado1: Estado): MutableList<Estado> {
+        var lista: MutableList<Estado> = mutableListOf()
+        for (estados in estados) {
             if (estados.NombreEstado.equals(estado.NombreEstado)) {
                 lista.add(estados)
             }
@@ -368,14 +368,14 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                 lista.add(estados)
             }
         }
-        if ( lista.size == 1){
-            lista.add(Estado("",false))
+        if (lista.size == 1) {
+            lista.add(Estado("", false))
         }
         return lista
     }
 
-    fun verificarEstadosAceptados( listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>) {
-        var EstadoFinales :MutableList<Estado> = mutableListOf()
+    fun verificarEstadosAceptados(listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>) {
+        var EstadoFinales: MutableList<Estado> = mutableListOf()
         var cantidadDeAceptados1 = 0
         for (estado in estados) {
             if (estado.EsAcceptable) {
@@ -383,8 +383,8 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                 EstadoFinales.add(estado)
             }
         }
-        for(estado in estados) {
-            if(!estado.NombreEstado.equals(EstadoFinales[0].NombreEstado)) {
+        for (estado in estados) {
+            if (!estado.NombreEstado.equals(EstadoFinales[0].NombreEstado)) {
                 listaDeEstadoNoIguales.add(ordenarEstado(estado, EstadoFinales[0]))
             }
         }
@@ -393,10 +393,10 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
     }
 
 
-    fun verificarEstados(colummnaEstado: Estado, filaEstado: Estado, listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>):Boolean {
+    fun verificarEstados(colummnaEstado: Estado, filaEstado: Estado, listaDeEstadoIguales: MutableList<MutableList<Estado>>, listaDeEstadoNoIguales: MutableList<MutableList<Estado>>): Boolean {
         var estadoFila: MutableList<Estado> = mutableListOf()
         var estadoColummna: MutableList<Estado> = mutableListOf()
-        for(alfabeto in alfabeto) {
+        for (alfabeto in alfabeto) {
             for (transiciones in transiciones) {
                 if (transiciones.EstadoInicial.NombreEstado.equals(colummnaEstado.NombreEstado) &&
                         transiciones.Simbolo.equals(alfabeto)) {
@@ -408,42 +408,41 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                 }
             }
 
-            if(estadoFila.size<estadoColummna.size){
-                estadoFila.add(Estado("",false))
-            }else if (estadoFila.size>estadoColummna.size) {
-                estadoColummna.add(Estado("",false))
+            if (estadoFila.size < estadoColummna.size) {
+                estadoFila.add(Estado("", false))
+            } else if (estadoFila.size > estadoColummna.size) {
+                estadoColummna.add(Estado("", false))
             }
         }
-        var listaVerifiacar = obtenerLista(estadoFila,estadoColummna)
-        var x=0
-        var esIgual:MutableList<Boolean> = mutableListOf()
-        while (x< alfabeto.size){
-            for(listaDeEstadoNoIguales1 in listaDeEstadoNoIguales){
-                if(listaVerifiacar[x][0].NombreEstado.equals(listaDeEstadoNoIguales1[0].NombreEstado)&&
-                        listaVerifiacar[x][1].NombreEstado.equals(listaDeEstadoNoIguales1[1].NombreEstado)){
+        var listaVerifiacar = obtenerLista(estadoFila, estadoColummna)
+        var x = 0
+        var esIgual: MutableList<Boolean> = mutableListOf()
+        while (x < alfabeto.size) {
+            for (listaDeEstadoNoIguales1 in listaDeEstadoNoIguales) {
+                if (listaVerifiacar[x][0].NombreEstado.equals(listaDeEstadoNoIguales1[0].NombreEstado) &&
+                        listaVerifiacar[x][1].NombreEstado.equals(listaDeEstadoNoIguales1[1].NombreEstado)) {
                     listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
                     return false
                 }
             }
-            if (listaVerifiacar[x][0].NombreEstado.equals("")&&!listaVerifiacar[x][1].NombreEstado.equals("")){
+            if (listaVerifiacar[x][0].NombreEstado.equals("") && !listaVerifiacar[x][1].NombreEstado.equals("")) {
                 listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
                 return false
-            }
-            else if(!listaVerifiacar[x][0].NombreEstado.equals("")&&listaVerifiacar[x][1].NombreEstado.equals("")){
+            } else if (!listaVerifiacar[x][0].NombreEstado.equals("") && listaVerifiacar[x][1].NombreEstado.equals("")) {
                 listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
                 return false
             }
             x++
         }
-        x=0
-        while (x<alfabeto.size) {
-            if(listaVerifiacar[x][0].NombreEstado.equals(listaVerifiacar[x][1].NombreEstado)){
+        x = 0
+        while (x < alfabeto.size) {
+            if (listaVerifiacar[x][0].NombreEstado.equals(listaVerifiacar[x][1].NombreEstado)) {
                 esIgual.add(true)
-            }else if(!listaVerifiacar[x][0].NombreEstado.equals(listaVerifiacar[x][1].NombreEstado)){
+            } else if (!listaVerifiacar[x][0].NombreEstado.equals(listaVerifiacar[x][1].NombreEstado)) {
                 var entro = false
-                for(listaDeEstadoIgual in listaDeEstadoIguales){
-                    if(listaVerifiacar[x][0].NombreEstado.equals(listaDeEstadoIgual[0].NombreEstado)&&
-                            listaVerifiacar[x][1].NombreEstado.equals(listaDeEstadoIgual[1].NombreEstado)){
+                for (listaDeEstadoIgual in listaDeEstadoIguales) {
+                    if (listaVerifiacar[x][0].NombreEstado.equals(listaDeEstadoIgual[0].NombreEstado) &&
+                            listaVerifiacar[x][1].NombreEstado.equals(listaDeEstadoIgual[1].NombreEstado)) {
                         entro = true
                         esIgual.add(true)
                     }
@@ -454,73 +453,106 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
             }
             x++
         }
-        var contado =0
-        for(igualdad in esIgual){
-            if (igualdad == false){
+        var contado = 0
+        for (igualdad in esIgual) {
+            if (igualdad == false) {
                 listaDeEstadoNoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
                 return false
             }
             contado++
         }
-        if (contado == alfabeto.size){
+        if (contado == alfabeto.size) {
             listaDeEstadoIguales.add(ordenarEstado(filaEstado, colummnaEstado))
             return true
         }
 
-            return false
+        return false
     }
 
-     fun  obtenerLista(estadoFila: MutableList<Estado>, colummnaEstado: MutableList<Estado>): MutableList<MutableList<Estado>> {
-        var lista : MutableList<MutableList<Estado>> = mutableListOf()
+    fun obtenerLista(estadoFila: MutableList<Estado>, colummnaEstado: MutableList<Estado>): MutableList<MutableList<Estado>> {
+        var lista: MutableList<MutableList<Estado>> = mutableListOf()
         var x = 0
-        while (x < alfabeto.size){
-            lista.add(ordenarEstado(estadoFila[x],colummnaEstado[x]))
-        x++
+        while (x < alfabeto.size) {
+            lista.add(ordenarEstado(estadoFila[x], colummnaEstado[x]))
+            x++
         }
         return lista
     }
-    fun union(Automata1 :DFA,Automata2:DFA):DFA{
-        var DFA = DFA(mutableListOf(), mutableListOf(),Estado("",false), mutableListOf())
 
+    fun union(Automata1: DFA, Automata2: DFA): DFA {
+        var DFA = DFA(mutableListOf(), mutableListOf(), Estado("", false), mutableListOf())
+        DFA = crearAutomata(Automata1, Automata2)
+        for (estados in DFA.estados) {
+            var Estado = estados.NombreEstado.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+            var aceptacion1 = false
+            var aceptacion2 = false
+            var aceptacion3 = false
+            var aceptacion4 = false
+            if (Estado.size == 1) {
+                aceptacion1 = esAceptado(Estado[0], Automata1)
+                aceptacion2 = esAceptado(Estado[0], Automata2)
+            } else if (Estado.size > 1) {
+                aceptacion1 = esAceptado(Estado[0], Automata1)
+                aceptacion2 = esAceptado(Estado[0], Automata2)
+                aceptacion3 = esAceptado(Estado[1], Automata1)
+                aceptacion4 = esAceptado(Estado[1], Automata2)
+            }
+            if (aceptacion1 || aceptacion2 || aceptacion3 || aceptacion4) {
+                estados.EsAcceptable = true
+            }
+        }
 
         return DFA
     }
-    fun  crearAutomata(Automata1 :DFA,Automata2:DFA):DFA{
-        var DFA = DFA(mutableListOf("0","1"), mutableListOf(),Estado("",false), mutableListOf())
-        var Estado = Estado("",false)
-        if(!Automata1.estadoInicial.NombreEstado.equals(Automata2.estadoInicial.NombreEstado)) {
-            Estado.NombreEstado =  Automata1.estadoInicial.NombreEstado+","+Automata2.estadoInicial.NombreEstado
-            Estado.EsAcceptable =(Automata1.estadoInicial.EsAcceptable || Automata2.estadoInicial.EsAcceptable)
-        }else {
+
+    private fun esAceptado(s: String, automata1: DFA): Boolean {
+        for (estado in automata1.estados) {
+            if (estado.NombreEstado.equals(s)) {
+                if (estado.EsAcceptable) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    fun crearAutomata(Automata1: DFA, Automata2: DFA): DFA {
+        var DFA = DFA(mutableListOf(), mutableListOf(), Estado("", false), mutableListOf())
+        DFA.alfabeto = crearAlfabeto(Automata1, Automata2)
+        var Estado = Estado("", false)
+        if (!Automata1.estadoInicial.NombreEstado.equals(Automata2.estadoInicial.NombreEstado)) {
+            Estado.NombreEstado = Automata1.estadoInicial.NombreEstado + "," + Automata2.estadoInicial.NombreEstado
+            Estado.EsAcceptable = (Automata1.estadoInicial.EsAcceptable || Automata2.estadoInicial.EsAcceptable)
+        } else {
             Estado = Automata1.estadoInicial
         }
         DFA.insertarEstado(Estado)
         DFA.estadoInicial = Estado
         var x = 0
-        while (x<DFA.estados.size){
-           var Estado = DFA.estados[x].NombreEstado.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
-            for(alfabeto in DFA.alfabeto){
-              var EstadoAinsertar :MutableList<String> = mutableListOf()
-                if(Estado.size > 1) {
-                 EstadoAinsertar = obtenerTransiciones(Estado[0], Estado[1],Automata1.transiciones,Automata2.transiciones,alfabeto)
-                }else if (Estado.size == 1) {
+        while (x < DFA.estados.size) {
+            var Estado = DFA.estados[x].NombreEstado.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+            for (alfabeto in DFA.alfabeto) {
+                var EstadoAinsertar: MutableList<String> = mutableListOf()
+                if (Estado.size > 1) {
+                    EstadoAinsertar = obtenerTransiciones(Estado[0], Estado[1], Automata1.transiciones, Automata2.transiciones, alfabeto)
+                } else if (Estado.size == 1) {
                     EstadoAinsertar = obtenerTransiciones(Estado[0], Estado[0], Automata1.transiciones, Automata2.transiciones, alfabeto)
                 }
 
-                if(EstadoAinsertar.size == 1){
-                    if(DFA.obtenerEstado(EstadoAinsertar.get(0)).NombreEstado.equals("NULL")){
-                        DFA.insertarEstado(Estado(EstadoAinsertar[0],false))
+                if (EstadoAinsertar.size == 1) {
+                    if (DFA.obtenerEstado(EstadoAinsertar.get(0)).NombreEstado.equals("NULL")) {
+                        DFA.insertarEstado(Estado(EstadoAinsertar[0], false))
                     }
-                  DFA.insertarTransacion(Transicion(DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[0]),alfabeto))
-                }else if (EstadoAinsertar.size >1){
-                    if(!DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]).NombreEstado.equals("NULL")){
-                        DFA.insertarTransacion(Transicion( DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]),alfabeto))
-                    }else if(!DFA.obtenerEstado(EstadoAinsertar[1]+","+EstadoAinsertar[0]).NombreEstado.equals("NULL")){
-                          DFA.insertarTransacion(Transicion( DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[1]+","+EstadoAinsertar[0]),alfabeto))
-                    }else if (DFA.obtenerEstado(EstadoAinsertar[1]+","+EstadoAinsertar[0]).NombreEstado.equals("NULL")&&
-                            DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]).NombreEstado.equals("NULL")){
-                        DFA.insertarEstado(Estado(EstadoAinsertar[0]+","+EstadoAinsertar[1],false))
-                       DFA.insertarTransacion(Transicion( DFA.estados[x],DFA.obtenerEstado(EstadoAinsertar[0]+","+EstadoAinsertar[1]),alfabeto))
+                    DFA.insertarTransacion(Transicion(DFA.estados[x], DFA.obtenerEstado(EstadoAinsertar[0]), alfabeto))
+                } else if (EstadoAinsertar.size > 1) {
+                    if (!DFA.obtenerEstado(EstadoAinsertar[0] + "," + EstadoAinsertar[1]).NombreEstado.equals("NULL")) {
+                        DFA.insertarTransacion(Transicion(DFA.estados[x], DFA.obtenerEstado(EstadoAinsertar[0] + "," + EstadoAinsertar[1]), alfabeto))
+                    } else if (!DFA.obtenerEstado(EstadoAinsertar[1] + "," + EstadoAinsertar[0]).NombreEstado.equals("NULL")) {
+                        DFA.insertarTransacion(Transicion(DFA.estados[x], DFA.obtenerEstado(EstadoAinsertar[1] + "," + EstadoAinsertar[0]), alfabeto))
+                    } else if (DFA.obtenerEstado(EstadoAinsertar[1] + "," + EstadoAinsertar[0]).NombreEstado.equals("NULL") &&
+                            DFA.obtenerEstado(EstadoAinsertar[0] + "," + EstadoAinsertar[1]).NombreEstado.equals("NULL")) {
+                        DFA.insertarEstado(Estado(EstadoAinsertar[0] + "," + EstadoAinsertar[1], false))
+                        DFA.insertarTransacion(Transicion(DFA.estados[x], DFA.obtenerEstado(EstadoAinsertar[0] + "," + EstadoAinsertar[1]), alfabeto))
                     }
                 }
             }
@@ -529,24 +561,102 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         return DFA
     }
 
+    fun crearAlfabeto(automata1: DFA, automata2: DFA): MutableList<String> {
+        var alfabeto: MutableList<String> = mutableListOf()
+        for (alfabeto1 in automata1.alfabeto) {
+            alfabeto.add(alfabeto1)
+        }
+        for (alfabeto1 in automata2.alfabeto) {
+            var x = 0
+            var insertar = false
+            while (x < alfabeto.size) {
+                if (alfabeto1.equals(alfabeto[x])) {
+                    insertar = true
+                }
+                x++
+            }
+            if (insertar == false) {
+                alfabeto.add(alfabeto1)
+            }
+        }
+        return alfabeto
+    }
+
     fun obtenerTransiciones(s: String, s1: String, transiciones: MutableList<Transicion>, transiciones1: MutableList<Transicion>, alfabeto: String): MutableList<String> {
-        var EstadoAinsertar :MutableList<String> = mutableListOf()
-        for(transicion1 in transiciones){
-            if(transicion1.EstadoInicial.NombreEstado.equals(s)&&transicion1.Simbolo.equals(alfabeto)){
+        var EstadoAinsertar: MutableList<String> = mutableListOf()
+        for (transicion1 in transiciones) {
+            if (transicion1.EstadoInicial.NombreEstado.equals(s) && transicion1.Simbolo.equals(alfabeto)) {
                 EstadoAinsertar.add(transicion1.EstadoFinal.NombreEstado)
             }
         }
-        for(transicion2 in transiciones1){
-            if(transicion2.EstadoInicial.NombreEstado.equals(s1)&&transicion2.Simbolo.equals(alfabeto)){
+        for (transicion2 in transiciones1) {
+            if (transicion2.EstadoInicial.NombreEstado.equals(s1) && transicion2.Simbolo.equals(alfabeto)) {
                 EstadoAinsertar.add(transicion2.EstadoFinal.NombreEstado)
             }
         }
-        if(EstadoAinsertar.size>1){
-            if(EstadoAinsertar[0]==EstadoAinsertar[1]){
+        if (EstadoAinsertar.size > 1) {
+            if (EstadoAinsertar[0] == EstadoAinsertar[1]) {
                 EstadoAinsertar.removeAt(1)
             }
         }
 
         return EstadoAinsertar
+
+    }
+    fun intersecion(Automata1: DFA, Automata2: DFA): DFA {
+        var DFA = DFA(mutableListOf(), mutableListOf(), Estado("", false), mutableListOf())
+        DFA = crearAutomata(Automata1, Automata2)
+        for (estados in DFA.estados) {
+            var Estado = estados.NombreEstado.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+            var aceptacion1 = false
+            var aceptacion2 = false
+            if (Estado.size == 1) {
+                aceptacion1 = esAceptado(Estado[0], Automata1)
+                aceptacion2 = esAceptado(Estado[0], Automata2)
+            } else if (Estado.size > 1) {
+                aceptacion1 = esAceptado(Estado[0], Automata1)
+                aceptacion2 = esAceptado(Estado[1], Automata2)
+            }
+            if (aceptacion1 == true && aceptacion2 == true ) {
+                estados.EsAcceptable = true
+            }else{
+                estados.EsAcceptable = false
+            }
+        }
+
+        return DFA
+    }
+    fun resta(Automata1: DFA, Automata2: DFA): DFA {
+        var x = 0
+        while (x < Automata2.estados.size){
+            if(Automata2.estados[x].EsAcceptable){
+                Automata2.estados[x].EsAcceptable = false
+            }else {
+                Automata2.estados[x].EsAcceptable = true
+            }
+            x++
+        }
+
+        return intersecion(Automata1,Automata2)
+    }
+    fun complemento(Automata1: DFA): DFA {
+        var x = 0
+        while (x < Automata1.estados.size) {
+            if (Automata1.estados[x].EsAcceptable) {
+                Automata1.estados[x].EsAcceptable = false
+            } else {
+                Automata1.estados[x].EsAcceptable = true
+            }
+            x++
+        }
+        if(Automata1.transiciones.size < (Automata1.estados.size * Automata1.alfabeto.size)) {
+            Automata1.insertarEstado(Estado("sumidero", true))
+        }
+        for (estado in Automata1.estados){
+            for (alfabeto in Automata1.alfabeto){
+                Automata1.insertarTransacion(Transicion(estado,Estado("sumidero",true),alfabeto))
+            }
+        }
+        return Automata1
     }
 }

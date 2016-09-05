@@ -54,6 +54,8 @@ public class JframeMenu : javax.swing.JFrame() {
         AlfabetoTXTField = JTextField();
         SimboloIniciaDePilaTXTField = JTextField()
         EvaluarBtn = JButton();
+        EvaluarBtn = JButton();
+        GuardarAutomata= JButton();
         MinimizarBtn = JButton();
         AceptacionLabel = JLabel();
         ConvertirDFA = JButton();
@@ -97,7 +99,10 @@ public class JframeMenu : javax.swing.JFrame() {
         (EvaluarBtn as JButton).addActionListener( {evt: ActionEvent->
                  EvaluarBtnActionPerformed(evt)
         });
-
+        (GuardarAutomata as JButton).setText("Guardar");
+        (GuardarAutomata as JButton).addActionListener( {evt: ActionEvent->
+            GuardarAutomataActionPerformed(evt)
+        });
         (MinimizarBtn as JButton).setText("Minimizar");
         (MinimizarBtn as JButton).addActionListener( {evt: ActionEvent->
 
@@ -313,6 +318,8 @@ public class JframeMenu : javax.swing.JFrame() {
                                                 .addGap(20, 20, 20)
                                                 .addComponent(jLabel3)
                                                 .addComponent(SimboloIniciaDePilaTXTField, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(GuardarAutomata)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE.toInt())
                                                 .addComponent(TipoAutomataCombox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                         .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 0)
@@ -339,6 +346,7 @@ public class JframeMenu : javax.swing.JFrame() {
                                         .addComponent(TipoAutomataCombox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel3)
                                         .addComponent(SimboloIniciaDePilaTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(GuardarAutomata)
                                         .addComponent(AlfabetoTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                         .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 500)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 456, Short.MAX_VALUE.toInt())
@@ -357,6 +365,11 @@ public class JframeMenu : javax.swing.JFrame() {
 
         pack();
     }// </editor-fold>
+
+    private fun GuardarAutomataActionPerformed(evt: ActionEvent) {
+
+
+    }
 
     fun CadenaTXTFieldActionPerformed(evt: java.awt.event.ActionEvent) {
         // TODO add your handling code here:
@@ -577,6 +590,7 @@ public class JframeMenu : javax.swing.JFrame() {
     var  jLabel2: JLabel? = null
     var  jLabel3: JLabel? = null
     var ConvertirDFA: JButton? = null
+    var GuardarAutomata: JButton? = null
     var ConvertirExpresionRegular: JButton? = null
     var dfa: DFA =DFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfa: NFA = NFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
