@@ -1,11 +1,4 @@
-/**
- * Created by decoe on 30/8/2016.
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package automatas;
 
 import java.util.ArrayList;
@@ -15,7 +8,7 @@ import com.sun.org.apache.bcel.internal.generic.RETURN
 import Estado
 import Transicion
 import Automatas
-public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoInicial : Estado, transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones)
+public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoInicial : Estado, transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones),java.io.Serializable
 {
     var simboloInicial:String = ""
     var simboloActualDePila:String = ""

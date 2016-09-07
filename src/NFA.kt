@@ -1,7 +1,7 @@
 /**
  * Created by PC on 24/07/2016.
  */
-open class NFA( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones) {
+open class NFA( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones),java.io.Serializable {
      fun validadTransicion(estadoInicial: Estado,estadoFinal:Estado,simbolo:String):Boolean   {
         val transicionAinsertar = Transicion(estadoInicial,estadoFinal,simbolo)
         for (transiciones in transiciones){

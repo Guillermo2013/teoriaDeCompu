@@ -1,6 +1,6 @@
 import com.sun.org.apache.bcel.internal.generic.RETURN
 
-class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoInicial : Estado, transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones) {
+class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoInicial : Estado, transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones) ,java.io.Serializable{
 
     fun evaluarCadena(cadena: String): Boolean {
         if (cadena.equals(" ")) {
@@ -54,7 +54,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
     fun CrearExpresionRegular(): String {
         var ExpresionRegular = ""
         for (estados in estados) {
-            if (estados.EsAcceptable) {
+            if (estados.EsAcceptable&&!estados.NombreEstado.equals(estadoInicial)) {
                 ExpresionRegular += ER(DejarUnSoloEstado(estados.NombreEstado), transiciones)
             }
         }
@@ -84,10 +84,10 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
             var TransicionesDesdeElestado = transicionesDesdeEl(estados[estado].NombreEstado, transiciones)
             for (transicionHacia in TransicionesHaciaElestado) {
                 for (transicionDesde in TransicionesDesdeElestado) {
-                    if (caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo.equals("") == true &&
-                            transicionHacia.EstadoInicial.NombreEstado.equals(transicionDesde.EstadoFinal.NombreEstado) == false
+                    if (caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo.equals("") == true
+                            &&transicionHacia.EstadoInicial.NombreEstado.equals(transicionDesde.EstadoFinal.NombreEstado) == false
                             && estados[estado].EsAcceptable == false
-                    ) {
+                            &&estados[estado].NombreEstado.equals(estadoInicial.NombreEstado)==false) {
                         var simboloDeRetorno = transicionHaciaElMismo(estados[estado].NombreEstado, transiciones)
                         if (!simboloDeRetorno.isEmpty()) {
                             transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, "(" + transicionHacia.Simbolo + simboloDeRetorno[0].Simbolo + "*" + transicionDesde.Simbolo + ")"))
@@ -98,7 +98,8 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                     } else if (caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo.equals("") == false &&
                             caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo.length <= 1
                             && transicionHacia.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado) == false
-                            && estados[estado].EsAcceptable == false) {
+                            && estados[estado].EsAcceptable == false
+                            &&estados[estado].NombreEstado.equals(estadoInicial.NombreEstado)==false) {
                         var caminoDirectoSimbolo = caminoDirecto(transicionHacia.EstadoInicial.NombreEstado, transicionDesde.EstadoFinal.NombreEstado, transiciones).Simbolo
                         var simboloDeRetorno = transicionHaciaElMismo(estados[estado].NombreEstado, transiciones)
                         var cerradura = ""
@@ -116,10 +117,12 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                             x++
                         }
                         var simbolo = simboloAconcatenar + "(" + transicionHacia.Simbolo + cerradura + transicionDesde.Simbolo + ")"
+                       if(estados[estado].EsAcceptable==false)
                         transiciones.add(Transicion(transicionHacia.EstadoInicial, transicionDesde.EstadoFinal, simbolo))
                     } else if (transicionDesde.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado)
                             && transicionHacia.EstadoInicial.NombreEstado.equals(transicionHacia.EstadoFinal.NombreEstado) == false
-                            && estados[estado].EsAcceptable == false) {
+                            && estados[estado].EsAcceptable == false
+                    &&estados[estado].NombreEstado.equals(estadoInicial.NombreEstado)==false) {
                         var simboloDeRetorno = transicionHaciaElMismo(estados[estado].NombreEstado, transiciones)
                         var cerradura = ""
                         if (!simboloDeRetorno.isEmpty()) {
@@ -141,13 +144,13 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
                 }
             }
             if (estados[estado].EsAcceptable == false && estados[estado].NombreEstado.equals(estadoInicial.NombreEstado) == false) {
-                var x = transiciones.size - 1
-                while (x >= 0) {
+                var x = 0
+                while (x < transiciones.size-1) {
                     if (transiciones[x].EstadoInicial.NombreEstado.equals(estados[estado].NombreEstado)
                             || transiciones[x].EstadoFinal.NombreEstado.equals(estados[estado].NombreEstado)) {
-                        transiciones.removeAt(index = x)
+                        transiciones.removeAt(x)
                     }
-                    x--
+                    x++
                 }
             }
             estado++
@@ -164,19 +167,23 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         var S = ""
         var U = ""
         var T = ""
-        for (transicion in transiciones) {
-            if (transicion.EstadoInicial.equals(estadoInicial.NombreEstado) && transicion.EstadoFinal.equals(estadoInicial.NombreEstado)) {
-                R = transicion.Simbolo + "*"
-            } else if (transicion.EstadoFinal.equals(estadoInicial.NombreEstado) && transicion.EstadoInicial.equals(estadoInicial.NombreEstado) == false) {
-                T = transicion.Simbolo
-            } else if (!transicion.EstadoInicial.equals(estadoInicial.NombreEstado) && !transicion.EstadoFinal.equals(estadoInicial.NombreEstado)) {
-                U = transicion.Simbolo + "*"
-            }
 
+        for (transiciones in transiciones){
+           println(transiciones.EstadoInicial.NombreEstado+" "+transiciones.EstadoFinal.NombreEstado+" "+transiciones.Simbolo)
+            if(transiciones.EstadoInicial.NombreEstado.equals(transiciones.EstadoFinal.NombreEstado)){
+                if(transiciones.EstadoInicial.NombreEstado.equals(estadoInicial.NombreEstado)){
+                    R = transiciones.Simbolo+"*"
+                }else{
+                    U = transiciones.Simbolo+"*"
+                }
+            }else if (transiciones.EstadoFinal.NombreEstado.equals(estadoInicial.NombreEstado)){
+                T = transiciones.Simbolo
+            }
         }
+
         S = transicionesDesdeEl(estadoInicial.NombreEstado, transiciones)[0].Simbolo
 
-        Expresion = "(" + R + S + U + ")(" + T + R + S + U + ")*"
+        Expresion = "(" +R + S + U + ")+(" + R + S + U + ")("+ T + R + S + U + ")*"
 
 
         return Expresion

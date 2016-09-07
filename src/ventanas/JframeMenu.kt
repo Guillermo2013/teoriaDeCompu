@@ -20,6 +20,7 @@ import Estado
 import Transicion
 import Automatas
 import automatas.PDA
+import Archivo
 import com.mxgraph.util.mxEventObject
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
@@ -367,8 +368,27 @@ public class JframeMenu : javax.swing.JFrame() {
     }// </editor-fold>
 
     private fun GuardarAutomataActionPerformed(evt: ActionEvent) {
-
-
+        var nombre =" "
+        while(true) {
+            var nombreDeArchivo: String = JOptionPane.showInputDialog("Escriba El Nombre Del Archivo");
+            if(nombreDeArchivo.length>1&&!nombreDeArchivo.equals(" ")){
+                nombre = nombreDeArchivo
+                break
+            }else{
+                showMessage("Escriba un nombre")
+            }
+        }
+        var Archivo  = Archivo()
+        if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
+            Archivo.guardarAutomata(dfa,(TipoAutomataCombox as JComboBox<String>).selectedItem.toString(),nombre)
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFA") {
+            Archivo.guardarAutomata(nfae,(TipoAutomataCombox as JComboBox<String>).selectedItem.toString(),nombre)
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE") {
+            Archivo.guardarAutomata(nfa,(TipoAutomataCombox as JComboBox<String>).selectedItem.toString(),nombre)
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
+            Archivo.guardarAutomata(pda,(TipoAutomataCombox as JComboBox<String>).selectedItem.toString(),nombre)
+        }
+        showMessage("Guardado correctamente")
     }
 
     fun CadenaTXTFieldActionPerformed(evt: java.awt.event.ActionEvent) {
@@ -386,7 +406,10 @@ public class JframeMenu : javax.swing.JFrame() {
             showMessage("No disponible")
         } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE") {
             showMessage("No disponible")
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
+            showMessage("No disponible")
         }
+
     }
     fun ConvertirDFAActionPerformed(evt: java.awt.event.ActionEvent) {
         // TODO add your handling code here:
@@ -435,8 +458,11 @@ public class JframeMenu : javax.swing.JFrame() {
             graph.model.endUpdate()
 
             }
+            (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "DFA"
+
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
+            showMessage("No disponible")
         }
-        (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "DFA"
     }
 
     fun MinimizarBtnActionPerformed(evt: java.awt.event.ActionEvent) {

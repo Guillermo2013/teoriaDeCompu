@@ -1,6 +1,6 @@
 
 
-open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ){
+open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ):java.io.Serializable{
         var alfabeto: MutableList<String> = alfabeto
         var estados: MutableList<Estado> =  estados
         var estadoInicial: Estado = estadoInicial

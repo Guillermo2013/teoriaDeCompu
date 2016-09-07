@@ -1,7 +1,7 @@
 ﻿/**
  * Created by PC on 25/07/2016.
  */
-class NFAE( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones) {
+class NFAE( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones),java.io.Serializable {
   override fun verificarCadena(cadena:String):Boolean{
         var quedarse =true
         for(letras in cadena.toCharArray()){
