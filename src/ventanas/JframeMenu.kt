@@ -32,6 +32,7 @@ public class JframeMenu : javax.swing.JFrame() {
      */
     var frame =CrearEstadoJFrame()
     val graph = mxGraph()
+    var operaciones = OperacionesDeConjuntoJFrame(this)
     var graphComponent: mxGraphComponent =  mxGraphComponent(graph);
     init {
         initComponents();
@@ -57,6 +58,7 @@ public class JframeMenu : javax.swing.JFrame() {
         EvaluarBtn = JButton();
         EvaluarBtn = JButton();
         GuardarAutomata= JButton();
+        OperacionesDeConjunto= JButton();
         MinimizarBtn = JButton();
         AceptacionLabel = JLabel();
         ConvertirDFA = JButton();
@@ -103,6 +105,10 @@ public class JframeMenu : javax.swing.JFrame() {
         (GuardarAutomata as JButton).setText("Guardar");
         (GuardarAutomata as JButton).addActionListener( {evt: ActionEvent->
             GuardarAutomataActionPerformed(evt)
+        });
+        (OperacionesDeConjunto as JButton).setText("Operaciones De Conjunto");
+        (OperacionesDeConjunto as JButton).addActionListener( {evt: ActionEvent->
+            OperacionesDeConjuntoActionPerformed(evt)
         });
         (MinimizarBtn as JButton).setText("Minimizar");
         (MinimizarBtn as JButton).addActionListener( {evt: ActionEvent->
@@ -321,6 +327,8 @@ public class JframeMenu : javax.swing.JFrame() {
                                                 .addComponent(SimboloIniciaDePilaTXTField, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
                                                 .addGap(18, 18, 18)
                                                 .addComponent(GuardarAutomata)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(OperacionesDeConjunto)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE.toInt())
                                                 .addComponent(TipoAutomataCombox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                         .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 0)
@@ -348,8 +356,10 @@ public class JframeMenu : javax.swing.JFrame() {
                                         .addComponent(jLabel3)
                                         .addComponent(SimboloIniciaDePilaTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(GuardarAutomata)
+                                        .addComponent(OperacionesDeConjunto)
                                         .addComponent(AlfabetoTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                        .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 500)
+                                .addGap(17, 17, 17)
+                                .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 500)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 456, Short.MAX_VALUE.toInt())
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel2)
@@ -366,6 +376,12 @@ public class JframeMenu : javax.swing.JFrame() {
 
         pack();
     }// </editor-fold>
+
+    private fun  OperacionesDeConjuntoActionPerformed(evt: ActionEvent) {
+        operaciones.isVisible = true
+
+
+    }
 
     private fun GuardarAutomataActionPerformed(evt: ActionEvent) {
         var nombre =" "
@@ -388,7 +404,7 @@ public class JframeMenu : javax.swing.JFrame() {
         } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
             Archivo.guardarAutomata(pda,(TipoAutomataCombox as JComboBox<String>).selectedItem.toString(),nombre)
         }
-        showMessage("Guardado correctamente")
+
     }
 
     fun CadenaTXTFieldActionPerformed(evt: java.awt.event.ActionEvent) {
@@ -554,7 +570,7 @@ public class JframeMenu : javax.swing.JFrame() {
             model.endUpdate()
         }
     }
-    private fun Dibujar(Exito: Boolean, inicial: Boolean, aceptable: Boolean,name:String, x: Int, y: Int, graph: mxGraph) :Any{
+     fun Dibujar(Exito: Boolean, inicial: Boolean, aceptable: Boolean,name:String, x: Int, y: Int, graph: mxGraph) :Any{
         var v1:Any =Any()
         var color = "lightblue"
         var forma = "ellipse"
@@ -617,6 +633,7 @@ public class JframeMenu : javax.swing.JFrame() {
     var  jLabel3: JLabel? = null
     var ConvertirDFA: JButton? = null
     var GuardarAutomata: JButton? = null
+    var OperacionesDeConjunto: JButton? = null
     var ConvertirExpresionRegular: JButton? = null
     var dfa: DFA =DFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfa: NFA = NFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())

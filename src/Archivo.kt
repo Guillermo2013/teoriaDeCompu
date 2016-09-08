@@ -4,7 +4,7 @@ import java.io.*
 class Archivo : javax.swing.JFrame(),Serializable {
 
     fun guardarAutomata(Automata:Automatas,carpeta:String,nombre:String){
-        val fos = FileOutputStream(carpeta+"/"+nombre)
+        val fos = FileOutputStream(carpeta+"/"+nombre+".txt")
         val out = ObjectOutputStream(fos)
         var Alfabeto = ""
         for (alfabeto in Automata.alfabeto){
@@ -24,7 +24,7 @@ class Archivo : javax.swing.JFrame(),Serializable {
         }
         out.writeObject("end")
     }
-    fun leerAutomata(path:String):Automatas{
+    fun leerAutomata(path:String):DFA{
         val fis = FileInputStream(path)
         val `in` = ObjectInputStream(fis)
         var Automata : DFA = DFA(mutableListOf(),mutableListOf(),Estado("",false), mutableListOf())
