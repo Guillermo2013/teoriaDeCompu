@@ -172,5 +172,60 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
         }
         return finales;
     }
+
+    fun  GramaticaToPDA(nombre: String): PDA {
+        var Estado0 = Estado("q0",false)
+        var Estado1 = Estado("q1",false)
+        var Estado2 = Estado("q2",true)
+        var PDA = PDA(mutableListOf("ε"), mutableListOf(Estado0,Estado1,Estado2), Estado0, mutableListOf())
+        PDA.simboloInicial = "Z0"
+        PDA.simboloActualDePila = "Z0"
+        PDA.stack.add(simboloActualDePila)
+        PDA.transiciones.add(Transicion(Estado1,Estado2,"ε,Z0,ε"))
+        var proyecciones = nombre.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+        var ListaNoTerminales :MutableList<String> = mutableListOf()
+        var ListaTerminales :MutableList<String> = mutableListOf()
+
+        for(proyec in proyecciones){
+           var noterminal = proyec.split("->").dropLastWhile { it.isEmpty() }.toTypedArray()
+            ListaNoTerminales.add(noterminal[0])
+        }
+        PDA.transiciones.add(Transicion(Estado0,Estado1,"ε,Z0,"+ListaNoTerminales[0]+"Z0"))
+        for(proyec in proyecciones){
+            var proyeccion = proyec.split("->").dropLastWhile { it.isEmpty() }.toTypedArray()
+            var produce1 = proyeccion[1].split("|").dropLastWhile { it.isEmpty() }.toTypedArray()
+            for(produccion in produce1){
+                PDA.insertarTransacion(Transicion(Estado1,Estado1,"ε,"+proyeccion[0]+","+produccion))
+                var Entro = false
+                for(lista in ListaNoTerminales){
+                    if(produccion.equals(lista)){
+                        Entro = true
+                    }
+                }
+                if (Entro ==false){
+                var caracteres = produccion.toCharArray()
+                    for (caracter in caracteres){
+                        var EsTerminal = true
+                        for (lista in ListaNoTerminales){
+                            if(caracter.toString().equals(lista)){
+                                EsTerminal = false
+                            }
+                        }
+                        if(EsTerminal){
+                            ListaTerminales.add(caracter.toString())
+                        }
+                    }
+
+                }
+            }
+
+        }
+       for(lista in ListaTerminales){
+           PDA.insertarTransacion(Transicion(Estado1,Estado1,lista+","+lista+",ε"))
+           PDA.alfabeto.add(lista)
+       }
+
+        return PDA
+    }
 }
 

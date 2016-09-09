@@ -34,6 +34,7 @@ public class JframeMenu : javax.swing.JFrame() {
     val graph = mxGraph()
     var operaciones = OperacionesDeConjuntoJFrame(this)
     var graphComponent: mxGraphComponent =  mxGraphComponent(graph);
+    var minimizar = false
     init {
         initComponents();
     }
@@ -58,6 +59,7 @@ public class JframeMenu : javax.swing.JFrame() {
         EvaluarBtn = JButton();
         EvaluarBtn = JButton();
         GuardarAutomata= JButton();
+        GramaticaToPDA= JButton();
         OperacionesDeConjunto= JButton();
         MinimizarBtn = JButton();
         AceptacionLabel = JLabel();
@@ -76,31 +78,13 @@ public class JframeMenu : javax.swing.JFrame() {
         vector.add("PDA")
         (TipoAutomataCombox as JComboBox<String>).setModel(DefaultComboBoxModel<String>((vector)))
 
-        (TipoAutomataCombox as JComboBox<String>).addActionListener(ActionListener() {
-            fun actionPerformed(evt: ActionEvent ) {
-                TipoAutomataComboxActionPerformed(evt);
-            }
-        });
-
-        (CadenaTXTField as JTextField).addActionListener(ActionListener() {
-            fun actionPerformed(evt: ActionEvent) {
-                CadenaTXTFieldActionPerformed(evt);
-            }
-        });
-
-        (SimboloIniciaDePilaTXTField as JTextField).addActionListener(ActionListener() {
-            fun actionPerformed(evt: ActionEvent) {
-                SimboloIniciaDePilaTXTFieldActionPerformed(evt);
-            }
-        });
-        (AlfabetoTXTField as JTextField).addActionListener(ActionListener() {
-            fun actionPerformed(evt: ActionEvent) {
-                AlfabetTXTFieldActionPerformed(evt);
-            }
-        });
         (EvaluarBtn as JButton).setText("Evaluar");
         (EvaluarBtn as JButton).addActionListener( {evt: ActionEvent->
                  EvaluarBtnActionPerformed(evt)
+        });
+        (GramaticaToPDA as JButton).setText("Gramatica -> PDA");
+        (GramaticaToPDA as JButton).addActionListener( {evt: ActionEvent->
+            GramaticaToPDAActionPerformed(evt)
         });
         (GuardarAutomata as JButton).setText("Guardar");
         (GuardarAutomata as JButton).addActionListener( {evt: ActionEvent->
@@ -112,9 +96,12 @@ public class JframeMenu : javax.swing.JFrame() {
         });
         (MinimizarBtn as JButton).setText("Minimizar");
         (MinimizarBtn as JButton).addActionListener( {evt: ActionEvent->
-
-                MinimizarBtnActionPerformed(evt);
-
+                if(minimizar ==false) {
+                    MinimizarBtnActionPerformed(evt);
+                    minimizar = true
+                }else{
+                    showMessage("No disponible mas")
+                }
         });
         (ConvertirDFA as JButton).setText("Convertir a DFA");
         (ConvertirDFA as JButton).addActionListener(  {evt: ActionEvent->
@@ -329,6 +316,8 @@ public class JframeMenu : javax.swing.JFrame() {
                                                 .addComponent(GuardarAutomata)
                                                 .addGap(18, 18, 18)
                                                 .addComponent(OperacionesDeConjunto)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(GramaticaToPDA)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE.toInt())
                                                 .addComponent(TipoAutomataCombox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                         .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 0)
@@ -357,6 +346,7 @@ public class JframeMenu : javax.swing.JFrame() {
                                         .addComponent(SimboloIniciaDePilaTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(GuardarAutomata)
                                         .addComponent(OperacionesDeConjunto)
+                                        .addComponent(GramaticaToPDA)
                                         .addComponent(AlfabetoTXTField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                 .addGap(17, 17, 17)
                                 .addComponent(graphComponent, 600, GroupLayout.DEFAULT_SIZE, 500)
@@ -377,9 +367,44 @@ public class JframeMenu : javax.swing.JFrame() {
         pack();
     }// </editor-fold>
 
+    private fun  GramaticaToPDAActionPerformed(evt: ActionEvent) {
+        var nombre =" "
+        while(true) {
+            var gramatica: String = JOptionPane.showInputDialog("Escriba una Gramatica Ejemplo E->E*T|T,T->T*F|F.... no olvide separar por comas");
+            if(gramatica.length>1&&!gramatica.equals(" ")){
+                nombre = gramatica
+                break
+            }else{
+                showMessage("Escriba un Gramatica")
+            }
+        }
+        (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "PDA"
+        if(nombre.length>1){
+            graph.model.beginUpdate()
+            graph.removeCells(graph.getChildVertices(graph.defaultParent))
+            graph.model.endUpdate()
+            pda = pda.GramaticaToPDA(nombre)
+            for (estados in pda.estados) {
+                var inicial = false
+                if (estados.NombreEstado.equals(pda.estadoInicial.NombreEstado)){
+                    inicial = true
+                }
+                var x =Random()
+                var y = Random()
+                estados.Vertex = Dibujar(true,inicial,estados.EsAcceptable,estados.NombreEstado, x.nextInt(500),y.nextInt(500),graph)
+
+            }
+            for (estados in pda.transiciones){
+                graph.model.beginUpdate()
+                graph.insertEdge(parent, null, estados.Simbolo, pda.obtenerEstado(estados.EstadoInicial.NombreEstado).Vertex, pda.obtenerEstado(estados.EstadoFinal.NombreEstado).Vertex)
+                graph.model.endUpdate()
+
+            }
+        }
+    }
+
     private fun  OperacionesDeConjuntoActionPerformed(evt: ActionEvent) {
         operaciones.isVisible = true
-
 
     }
 
@@ -405,14 +430,6 @@ public class JframeMenu : javax.swing.JFrame() {
             Archivo.guardarAutomata(pda,(TipoAutomataCombox as JComboBox<String>).selectedItem.toString(),nombre)
         }
 
-    }
-
-    fun CadenaTXTFieldActionPerformed(evt: java.awt.event.ActionEvent) {
-        // TODO add your handling code here:
-    }
-
-    fun AlfabetTXTFieldActionPerformed(evt: java.awt.event.ActionEvent) {
-        // TODO add your handling code here:
     }
     fun ConvertirExpresionRegularActionPerformed(evt: java.awt.event.ActionEvent) {
         if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
@@ -507,13 +524,6 @@ public class JframeMenu : javax.swing.JFrame() {
             }
         }
     }
-    fun TipoAutomataComboxActionPerformed(evt:java.awt.event.ActionEvent)
-    {
-        // TODO add your handling code here:
-    }
-    fun SimboloIniciaDePilaTXTFieldActionPerformed(evt: ActionEvent) {
-        // TODO add your handling code here:
-    }
     fun EvaluarBtnActionPerformed( evt:java.awt.event.ActionEvent) {
         // TODO add your handling code here:
 
@@ -531,9 +541,11 @@ public class JframeMenu : javax.swing.JFrame() {
             cadenaPermitida = nfae.verificarCadena(cadena)
         }
         else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
-            pda.simboloActualDePila = SimboloIniciaDePilaTXTField?.text.toString()
-            pda.simboloInicial =  SimboloIniciaDePilaTXTField?.text.toString()
-            pda.stack.push(pda.simboloActualDePila);
+            if(pda.simboloActualDePila.equals("")||pda.simboloInicial.equals("")) {
+                pda.simboloActualDePila = SimboloIniciaDePilaTXTField?.text.toString()
+                pda.simboloInicial = SimboloIniciaDePilaTXTField?.text.toString()
+                pda.stack.push(pda.simboloActualDePila);
+            }
             resultado = pda.EvaluarCadena(cadena).toString()
             cadenaPermitida = pda.verificarCadena(cadena)
         }
@@ -632,6 +644,7 @@ public class JframeMenu : javax.swing.JFrame() {
     var  jLabel2: JLabel? = null
     var  jLabel3: JLabel? = null
     var ConvertirDFA: JButton? = null
+    var GramaticaToPDA: JButton? = null
     var GuardarAutomata: JButton? = null
     var OperacionesDeConjunto: JButton? = null
     var ConvertirExpresionRegular: JButton? = null
