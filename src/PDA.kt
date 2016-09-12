@@ -65,6 +65,7 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
 
   override fun  verificarCadena( cadena:String):Boolean {
       var evaluar = cadena.toCharArray()
+
       var stay=true;
         var i=0
         while (i<evaluar.size){

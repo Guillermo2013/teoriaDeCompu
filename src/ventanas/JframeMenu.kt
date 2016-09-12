@@ -16,6 +16,7 @@ import javax.swing.*
 import DFA
 import NFA
 import NFAE
+import MDT
 import Estado
 import Transicion
 import Automatas
@@ -76,6 +77,7 @@ public class JframeMenu : javax.swing.JFrame() {
         vector.add("NFA")
         vector.add("NFAE")
         vector.add("PDA")
+        vector.add("MT")
         (TipoAutomataCombox as JComboBox<String>).setModel(DefaultComboBoxModel<String>((vector)))
 
         (EvaluarBtn as JButton).setText("Evaluar");
@@ -126,7 +128,7 @@ public class JframeMenu : javax.swing.JFrame() {
                     var v1 = dfa.obtenerEstado(origen.value.toString())
                     var v2 = dfa.obtenerEstado(destino.value.toString())
                     var valorDeTransicion = valorDeTransicion()
-                    if (dfa.verificarLetra(valorDeTransicion) == false) {
+                    if (dfa.verificarLetra(valorDeTransicion) == false||valorDeTransicion.equals(" ")) {
                         graph.getModel().remove(evt.getProperty("cell"));
                         return@addListener
                     }
@@ -145,7 +147,7 @@ public class JframeMenu : javax.swing.JFrame() {
                     var v1 = nfa.obtenerEstado(origen.value.toString())
                     var v2 = nfa.obtenerEstado(destino.value.toString())
                     var valorDeTransicion = valorDeTransicion()
-                    if (nfa.verificarLetra(valorDeTransicion) == false) {
+                    if (nfa.verificarLetra(valorDeTransicion) == false||valorDeTransicion.equals(" ")) {
                         graph.getModel().remove(evt.getProperty("cell"));
                         return@addListener
                     }
@@ -207,11 +209,39 @@ public class JframeMenu : javax.swing.JFrame() {
                     var name = valorDeTransicion.toString()
                     edge.setValue(name);
                 }
+                else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="MT"){
+                    mt.agregarAlfabeto((AlfabetoTXTField?.text+",B"))
+                    var edge = evt.getProperty("cell")as(mxCell)
+                    var v1 = mt.obtenerEstado(origen.value.toString());
+                    var v2 = mt.obtenerEstado(destino.value.toString());
+                    if(v2 == null){
+                        graph.getModel().remove(evt.getProperty("cell"));
+                        return@addListener
+                    }
+                    var valorDeTransicion = transicionMT();
+                    if (mt.verificarLetra(valorDeTransicion.toCharArray()[0].toString()) == false) {
+                        graph.getModel().remove(evt.getProperty("cell"));
+                        return@addListener
+                    }
+                    var transicion: Transicion = Transicion(v1, v2, valorDeTransicion)
+                    if (mt.insertarTransacion(transicion)) {
+                        showMessage("se agrego transicion correctamente")
+                    }else{
+                        showMessage("ya existe la transicion ")
+                        graph.getModel().remove(evt.getProperty("cell"));
+                        return@addListener
+                    }
+                    var name = valorDeTransicion.toString()
+                    edge.setValue(name);
+                }
 
         }catch(e:TypeCastException){
                  graph.getModel().remove(evt.getProperty("cell"));
                 return@addListener
-        }
+        }catch (e:Exception){
+                graph.getModel().remove(evt.getProperty("cell"));
+                return@addListener
+         }
         })
         graphComponent.getGraphControl().addMouseListener(object: MouseAdapter(){
 
@@ -244,7 +274,15 @@ public class JframeMenu : javax.swing.JFrame() {
                             if (pda.estadoInicial.NombreEstado != "") {
                                 frame.EstadoInicialRadioBtn?.setVisible(false)
                             }
+                        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "MT") {
+                        SimboloIniciaDePilaTXTField?.setVisible(false)
+                        jLabel3?.setVisible(false)
+
+                        if (mt.estadoInicial.NombreEstado != "") {
+                            frame.EstadoInicialRadioBtn?.setVisible(false)
                         }
+                    }
+
                     }
                 }
 
@@ -286,6 +324,13 @@ public class JframeMenu : javax.swing.JFrame() {
                                     pda.estadoInicial = EstadoAinsertar
                                 }
                             pda.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
+                            }
+                            else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="MT"){
+                                Exito = mt.insertarEstado(EstadoAinsertar)
+                                if(inicial==true&&Exito==true){
+                                    mt.estadoInicial = EstadoAinsertar
+                                }
+                                mt.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
                             }
                             name = ""
                             frame.NombreEstadoTXTField?.text = ""
@@ -435,11 +480,11 @@ public class JframeMenu : javax.swing.JFrame() {
         if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
             showMessage(dfa.CrearExpresionRegular())
             return
-        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFA") {
-            showMessage("No disponible")
-        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE") {
-            showMessage("No disponible")
-        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFA"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "MT") {
             showMessage("No disponible")
         }
 
@@ -493,7 +538,8 @@ public class JframeMenu : javax.swing.JFrame() {
             }
             (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "DFA"
 
-        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA") {
+        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "MT") {
             showMessage("No disponible")
         }
     }
@@ -522,6 +568,12 @@ public class JframeMenu : javax.swing.JFrame() {
                 graph.model.endUpdate()
 
             }
+        }else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "MT"
+                ||(TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFA"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "NFAE"){
+            showMessage("No disponible")
+
         }
     }
     fun EvaluarBtnActionPerformed( evt:java.awt.event.ActionEvent) {
@@ -549,6 +601,12 @@ public class JframeMenu : javax.swing.JFrame() {
             resultado = pda.EvaluarCadena(cadena).toString()
             cadenaPermitida = pda.verificarCadena(cadena)
         }
+        else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "MT") {
+            mt.llenarCinta(cadena)
+            resultado = mt.EvaluarCadena(cadena).toString()
+            cadenaPermitida = mt.verificarCadena(cadena)
+
+        }
         if (cadenaPermitida == false) {
             showMessage("La cadena tiene caracteres que no son del afabeto")
         } else {
@@ -556,7 +614,7 @@ public class JframeMenu : javax.swing.JFrame() {
         }
     }
    fun valorDeTransicion():String{
-        var  valor :String= "";
+        var  valor :String= " "
         while(true){
             var form:String = JOptionPane.showInputDialog("Digite nombre de Transicion:");
             var valorChar:CharArray=form.toCharArray();
@@ -609,7 +667,7 @@ public class JframeMenu : javax.swing.JFrame() {
 	return v1
     }
 
-    private fun escogerTransicion(): String {
+     fun escogerTransicion(): String {
         var nombre = ""
         while (true) {
             val name = JOptionPane.showInputDialog("Digite nombre de Transicion:")
@@ -628,6 +686,31 @@ public class JframeMenu : javax.swing.JFrame() {
         return nombre
     }
 
+     fun transicionMT(): String {
+        var nombre = ""
+        while (true) {
+            val name = JOptionPane.showInputDialog("Digite nombre de Transicion:")
+            if (name == null || name.isEmpty()) {
+                showMessage("No se ingreso nada!!")
+                 break
+            }
+            val na = name.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            if (na.size != 3) {
+                showMessage("Se debe ingresar caracter a consumir, caracter al cual se cambia el valor de cinta, direccion a moverme en cinta\nEjemplo: 0,X,D")
+            } else if (na.size == 3) {
+                if (na[1].length != 1) {
+                    showMessage("El valor a cambiar debe ser un solo caracter!")
+                    continue
+                }
+                if (na[2] == "->" || na[2] == "<-") {
+                    nombre = name
+                    break
+                }
+                showMessage("El movimiento de la cinta se dertermina: Los valores para mover cinta son: -> (Derecha) o  <- (Izquierda)")
+            }
+        }
+        return nombre
+    }
     /**
      * @param args the command line arguments
      */
@@ -652,6 +735,8 @@ public class JframeMenu : javax.swing.JFrame() {
     var nfa: NFA = NFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfae: NFAE = NFAE( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var pda : PDA = PDA(mutableListOf(),mutableListOf(),Estado("",false), mutableListOf())
+    var mt : MDT = MDT(mutableListOf(), mutableListOf(), Estado("", false), mutableListOf())
+
 
 
     // End of variables declaration

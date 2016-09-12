@@ -8,9 +8,9 @@ open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estad
 
 
      open fun verificarCadena(cadena:String):Boolean{
-        var quedarse =true
+        var quedarse = true
         for(letras in cadena.toCharArray()){
-            for(caracteres in alfabeto){
+            for(caracteres in this.alfabeto){
                 if(caracteres.equals(letras)){
                     quedarse=true
                     break;
@@ -60,7 +60,8 @@ open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estad
         return Estado("NULL",false)
     }
     fun verificarLetra(letra:String):Boolean{
-        for(alfabeto in this.alfabeto){
+
+         for(alfabeto in this.alfabeto){
             if (alfabeto.equals(letra)){
                 return true
 
