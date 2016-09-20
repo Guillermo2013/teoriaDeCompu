@@ -14,7 +14,7 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         var stay = true
         for (letra in evaluar) {
             for (transicion in transiciones) {
-                if (transicion.EstadoInicial.NombreEstado.equals(fin.NombreEstado) && transicion.Simbolo.equals(letra.toChar())) {
+                if (transicion.EstadoInicial.NombreEstado.equals(fin.NombreEstado) && transicion.Simbolo.equals(letra.toString())) {
                     fin = transicion.EstadoFinal
                     stay = true
                     break
@@ -388,10 +388,6 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
             if (estado.EsAcceptable) {
                 cantidadDeAceptados1 += 1
                 EstadoFinales.add(estado)
-            }
-        }
-        for (estado in estados) {
-            if (!estado.NombreEstado.equals(EstadoFinales[0].NombreEstado)) {
                 listaDeEstadoNoIguales.add(ordenarEstado(estado, EstadoFinales[0]))
             }
         }
@@ -666,4 +662,5 @@ class DFA(alfabeto : MutableList<String>, estados : MutableList<Estado>, estadoI
         }
         return Automata1
     }
+
 }

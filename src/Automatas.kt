@@ -10,10 +10,10 @@ open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estad
      open fun verificarCadena(cadena:String):Boolean{
         var quedarse = true
         for(letras in cadena.toCharArray()){
-            for(caracteres in this.alfabeto){
-                if(caracteres.equals(letras)){
+            for(caracteres in alfabeto){
+                if(caracteres.toString().equals(letras.toString())){
                     quedarse=true
-                    break;
+                    break
 
                 }else{
                     quedarse= false
@@ -41,12 +41,10 @@ open class Automatas( alfabeto : MutableList<String>,estados : MutableList<Estad
         return false
     }
  open  fun agregarAlfabeto(cadena:String) {
-     if (alfabeto.isEmpty()) {
-         var cadena = cadena.replace(',', ' ')
-         for (caracteres in cadena.toCharArray()) {
-             if (caracteres != ' ') {
+     if (alfabeto.isEmpty()&&!cadena.isEmpty()) {
+         var cadena = cadena.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+         for (caracteres in cadena) {
                  this.alfabeto.add(caracteres.toString())
-             }
          }
 
      }

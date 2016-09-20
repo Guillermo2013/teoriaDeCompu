@@ -34,11 +34,10 @@ public class PDA (alfabeto : MutableList<String>, estados : MutableList<Estado>,
     override  fun agregarAlfabeto(cadena:String) {
     if (alfabeto.isEmpty()) {
         this.alfabeto.add("ε")
-        var cadena = cadena.replace(',', ' ')
-        for (caracteres in cadena.toCharArray()) {
-            if (caracteres != ' ') {
+        var cadena = cadena.split(",").dropLastWhile { it.isEmpty() }.toTypedArray()
+        for (caracteres in cadena) {
                 this.alfabeto.add(caracteres.toString())
-            }
+
         }
 
     }

@@ -48,7 +48,7 @@ open class NFA( alfabeto : MutableList<String>,estados : MutableList<Estado> ,es
         for(transicion in transiciones){
             for(estado in ListaDeEstadosfinales)
             if(transicion.EstadoInicial.NombreEstado.equals(estado.NombreEstado)&&
-                    transicion.Simbolo.equals(evaluar.get(posicion))){
+                    transicion.Simbolo.equals(evaluar.get(posicion).toString())){
 
                 finalesTemporal.add(transicion.EstadoFinal)
                 break;

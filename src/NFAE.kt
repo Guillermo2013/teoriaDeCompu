@@ -1,12 +1,18 @@
-﻿/**
+﻿import regularexpresion.tree.ANDNode
+import regularexpresion.tree.CharNode
+import regularexpresion.tree.ORNode
+import regularexpresion.tree.RepeatNode
+
+/**
  * Created by PC on 25/07/2016.
  */
 class NFAE( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estadoInicial : Estado ,transiciones  : MutableList<Transicion> ): Automatas(alfabeto,estados,estadoInicial,transiciones),java.io.Serializable {
-  override fun verificarCadena(cadena:String):Boolean{
+    var estadoNum = 0
+    override fun verificarCadena(cadena:String):Boolean{
         var quedarse =true
         for(letras in cadena.toCharArray()){
             for(caracteres in alfabeto){
-                if(caracteres.equals(letras)){
+                if(caracteres.equals(letras.toString())){
                     quedarse=true
                     break;
                 }else{
@@ -63,7 +69,7 @@ class NFAE( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estado
         for(transicion in transiciones){
             for(estado in ListaDeEstadosfinales)
                 if(transicion.EstadoInicial.NombreEstado.equals(estado.NombreEstado)&&
-                        transicion.Simbolo.equals(evaluar.get(posicion))){
+                        transicion.Simbolo.equals(evaluar.get(posicion).toString())){
 
                     finalesTemporal.add(transicion.EstadoFinal)
                     break;
@@ -274,6 +280,162 @@ class NFAE( alfabeto : MutableList<String>,estados : MutableList<Estado> ,estado
             ListaEstados.add(nombreDeSubEstado)
         }
         return ListaEstados
+    }
+    fun concatenacionAutomatas(NFAE1 : NFAE,NFAE2: NFAE): NFAE {
+        var NFAE = NFAE(mutableListOf(), mutableListOf(),NFAE1.estadoInicial, mutableListOf())
+        var x =0
+        NFAE.estados.addAll(NFAE1.estados)
+        NFAE.estados.addAll(NFAE2.estados)
+        NFAE.transiciones.addAll(NFAE1.transiciones)
+        NFAE.transiciones.addAll(NFAE2.transiciones)
+        while (x<NFAE1.estados.size){
+            if(NFAE1.estados[x].EsAcceptable){
+                NFAE1.estados[x].EsAcceptable = false
+                NFAE.insertarTransacion(Transicion(NFAE1.estados[x],NFAE2.estadoInicial,"ε"))
+            }
+            x++
+        }
+
+        return NFAE
+    }
+    fun crearAutomataCaracter(cantidadDeEstados :Int,caracter:String): NFAE {
+        var NFAE = NFAE(mutableListOf(), mutableListOf(),Estado("",false), mutableListOf())
+        var EstadoInicial = Estado(cantidadDeEstados.toString(),false)
+        NFAE.insertarEstado(EstadoInicial)
+        NFAE.estadoInicial =EstadoInicial
+        var EstadoFinal = Estado((cantidadDeEstados+1).toString(),true)
+        NFAE.insertarEstado(EstadoFinal)
+        NFAE.insertarTransacion(Transicion(EstadoInicial,EstadoFinal,caracter))
+        return NFAE
+    }
+    fun seleccionAutomatas(NFAE1 : NFAE,NFAE2: NFAE,cantidadDeEstados :Int): NFAE {
+        var NFAE = NFAE(mutableListOf(), mutableListOf(),Estado("",false), mutableListOf())
+        var x =0
+        NFAE.estados.addAll(NFAE1.estados)
+        NFAE.estados.addAll(NFAE2.estados)
+        NFAE.transiciones.addAll(NFAE1.transiciones)
+        NFAE.transiciones.addAll(NFAE2.transiciones)
+        var EstadoInicial = Estado(cantidadDeEstados.toString(),false)
+        var EstadoFinal = Estado((cantidadDeEstados+1).toString(),true)
+        NFAE.estados.addAll(mutableListOf(EstadoFinal,EstadoInicial))
+        NFAE.insertarTransacion(Transicion(EstadoInicial,NFAE1.estadoInicial,"ε"))
+        NFAE.insertarTransacion(Transicion(EstadoInicial,NFAE2.estadoInicial,"ε"))
+        NFAE.estadoInicial = EstadoInicial
+        while (x<NFAE1.estados.size){
+            if(NFAE1.estados[x].EsAcceptable){
+                NFAE1.estados[x].EsAcceptable = false
+                NFAE.insertarTransacion(Transicion(NFAE1.estados[x],EstadoFinal,"ε"))
+            }
+            x++
+        }
+        x = 0
+        while (x<NFAE2.estados.size){
+            if(NFAE2.estados[x].EsAcceptable){
+                NFAE2.estados[x].EsAcceptable = false
+                NFAE.insertarTransacion(Transicion(NFAE2.estados[x],EstadoFinal,"ε"))
+            }
+            x++
+        }
+        return NFAE
+    }
+    fun repeticionAutomata (NFAE1 : NFAE,cantidadDeEstados :Int): NFAE {
+        var NFAE = NFAE(mutableListOf(), mutableListOf(),Estado("",false), mutableListOf())
+        NFAE.estados.addAll(NFAE1.estados)
+        NFAE.transiciones.addAll(NFAE1.transiciones)
+        var EstadoInicial = Estado(cantidadDeEstados.toString(),false)
+        var EstadoFinal = Estado((cantidadDeEstados+1).toString(),true)
+        NFAE.estadoInicial = EstadoInicial
+        NFAE.estados.addAll(mutableListOf(EstadoFinal,EstadoInicial))
+        NFAE.insertarTransacion(Transicion(EstadoInicial,NFAE1.estadoInicial,"ε"))
+        NFAE.insertarTransacion(Transicion(EstadoInicial,EstadoFinal,"ε"))
+        var x = 0
+        while (x<NFAE1.estados.size){
+            if(NFAE1.estados[x].EsAcceptable){
+                NFAE1.estados[x].EsAcceptable = false
+                NFAE.insertarTransacion(Transicion(NFAE1.estados[x],EstadoFinal,"ε"))
+                NFAE.insertarTransacion(Transicion(NFAE1.estados[x],NFAE1.estadoInicial,"ε"))
+            }
+            x++
+        }
+    return NFAE
+    }
+    fun obtainAutomata(rootNode: regularexpresion.tree.Node, nfaeList: NFAE ) {
+        if (rootNode is CharNode) {
+            val e1 = Estado(estadoNum.toString(), false)
+            estadoNum += 1
+            val e2 = Estado(estadoNum.toString(), true)
+            estadoNum += 1
+            val t = Transicion(e1, e2, rootNode.value)
+            nfaeList.alfabeto.add(rootNode.value)
+            nfaeList.alfabeto = quitarRepetidos(nfaeList.alfabeto)
+            nfaeList.estadoInicial = e1
+            nfaeList.estados.add(e1)
+            nfaeList.estados.add(e2)
+            nfaeList.transiciones.add(t)
+
+        } else if (rootNode is ORNode) {
+            var e1 = Estado(estadoNum.toString(), false)
+            estadoNum += 1
+            nfaeList.estados.add(e1)
+            obtainAutomata(rootNode.leftNode, nfaeList)
+            var t = Transicion(e1,nfaeList.estadoInicial ,"ε")
+            nfaeList.transiciones.add(t)
+            obtainAutomata(rootNode.rightNode, nfaeList)
+            t = Transicion(e1,nfaeList.estadoInicial ,"ε")
+            nfaeList.transiciones.add(t)
+            nfaeList.estadoInicial = e1
+
+            var final = Estado(estadoNum.toString(), false)
+            nfaeList.estados.add(final)
+            for(estado in nfaeList.estados){
+                if(estado.EsAcceptable){
+                    estado.EsAcceptable = false
+                    t = Transicion(estado,final ,"ε")
+                    nfaeList.transiciones.add(t)
+                }
+            }
+            nfaeList.obtenerEstado(final.NombreEstado).EsAcceptable =true
+            estadoNum += 1
+        } else if (rootNode is ANDNode) {
+            var Estado = Estado("",false)
+            obtainAutomata(rootNode.rightNode, nfaeList)
+            for (estado in nfaeList.estados){
+                if(estado.EsAcceptable){
+                    estado.EsAcceptable = false
+                    Estado = estado
+                }
+            }
+            var estadoInicial = nfaeList.estadoInicial
+            obtainAutomata(rootNode.leftNode, nfaeList)
+           var t = Transicion(Estado,nfaeList.estadoInicial ,"ε")
+            nfaeList.transiciones.add(t)
+            nfaeList.estadoInicial = obtenerEstado(estadoInicial.NombreEstado)
+            estadoNum += 1
+        } else {
+            val e1 = Estado((estadoNum).toString(), false)
+            estadoNum += 1
+            nfaeList.estados.add(e1)
+            obtainAutomata((rootNode as RepeatNode).node, nfaeList)
+            val e2 = Estado((estadoNum).toString(), false)
+            nfaeList.estados.add(e2)
+            for(estado in nfaeList.estados){
+                if(estado.EsAcceptable){
+                    estado.EsAcceptable = false
+                    var t = Transicion(estado,e2,"ε")
+                    nfaeList.transiciones.add(t)
+                    t = Transicion(estado,nfaeList.estadoInicial,"ε")
+                    nfaeList.transiciones.add(t)
+                }
+            }
+            nfaeList.obtenerEstado(e2.NombreEstado).EsAcceptable =true
+            var t = Transicion(e1,nfaeList.estadoInicial,"ε")
+            nfaeList.transiciones.add(t)
+             t = Transicion(e1,e2,"ε")
+            nfaeList.transiciones.add(t)
+            nfaeList.estadoInicial = e1
+            estadoNum += 1
+        }
+
     }
 
 }

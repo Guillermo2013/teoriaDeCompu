@@ -23,6 +23,8 @@ import Automatas
 import automatas.PDA
 import Archivo
 import com.mxgraph.util.mxEventObject
+import regularexpresion.RegularExpressionParser
+import java.awt.Button
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 
@@ -58,7 +60,7 @@ public class JframeMenu : javax.swing.JFrame() {
         AlfabetoTXTField = JTextField();
         SimboloIniciaDePilaTXTField = JTextField()
         EvaluarBtn = JButton();
-        EvaluarBtn = JButton();
+        Reset = JButton();
         GuardarAutomata= JButton();
         GramaticaToPDA= JButton();
         OperacionesDeConjunto= JButton();
@@ -66,7 +68,7 @@ public class JframeMenu : javax.swing.JFrame() {
         AceptacionLabel = JLabel();
         ConvertirDFA = JButton();
         ConvertirExpresionRegular = JButton();
-
+        ConvertirExpresionRegulartoNfae = JButton();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         (jLabel1 as JLabel).setText("Alfabeto ejemplo: 1,0 ");
@@ -83,6 +85,10 @@ public class JframeMenu : javax.swing.JFrame() {
         (EvaluarBtn as JButton).setText("Evaluar");
         (EvaluarBtn as JButton).addActionListener( {evt: ActionEvent->
                  EvaluarBtnActionPerformed(evt)
+        });
+        (Reset as JButton).setText("Reset");
+        (Reset as JButton).addActionListener( {evt: ActionEvent->
+            ResetActionPerformed(evt)
         });
         (GramaticaToPDA as JButton).setText("Gramatica -> PDA");
         (GramaticaToPDA as JButton).addActionListener( {evt: ActionEvent->
@@ -112,6 +118,10 @@ public class JframeMenu : javax.swing.JFrame() {
         (ConvertirExpresionRegular as JButton).setText("Convertir a ER");
         (ConvertirExpresionRegular as JButton).addActionListener(  {evt: ActionEvent->
             ConvertirExpresionRegularActionPerformed(evt);
+        });
+        (ConvertirExpresionRegulartoNfae as JButton).setText("Convertir a ER to Nfae");
+        (ConvertirExpresionRegulartoNfae as JButton).addActionListener(  {evt: ActionEvent->
+            ConvertirExpresionRegulartoNfaeActionPerformed(evt);
         });
         graph.setAllowLoops(true)
         graph.setDisconnectOnMove(false)
@@ -311,7 +321,7 @@ public class JframeMenu : javax.swing.JFrame() {
 				            nfa.obtenerEstado(EstadoAinsertar.NombreEstado).Vertex= Dibujar(Exito, inicial as Boolean, aceptable,name, e.x, e.y,graph)
                             }
                             else if((TipoAutomataCombox as JComboBox<String>).selectedItem.toString()=="NFAE"){
-
+                                Exito = nfae.insertarEstado(EstadoAinsertar)
                                 if(inicial==true&&Exito==true){
                                     nfae.estadoInicial = EstadoAinsertar
 				            }
@@ -377,7 +387,11 @@ public class JframeMenu : javax.swing.JFrame() {
                                                 .addGap(18, 18, 18)
                                                 .addComponent(ConvertirExpresionRegular)
                                                 .addGap(18, 18, 18)
-                                                .addComponent(MinimizarBtn)))
+                                                .addComponent(ConvertirExpresionRegulartoNfae)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(MinimizarBtn)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(Reset)))
                                                 .addGap(26, 26, 26))
         );
         layout.setVerticalGroup(
@@ -403,7 +417,9 @@ public class JframeMenu : javax.swing.JFrame() {
                                         .addComponent(MinimizarBtn)
                                         .addComponent(AceptacionLabel)
                                         .addComponent(ConvertirDFA)
-                                        .addComponent(ConvertirExpresionRegular))
+                                        .addComponent(ConvertirExpresionRegular)
+                                        .addComponent(ConvertirExpresionRegulartoNfae)
+                                        .addComponent(Reset))
 
                                 .addGap(22, 22, 22))
         );
@@ -411,6 +427,69 @@ public class JframeMenu : javax.swing.JFrame() {
 
         pack();
     }// </editor-fold>
+
+    private fun  ConvertirExpresionRegulartoNfaeActionPerformed(evt: ActionEvent) {
+        var nombre =" "
+        while(true) {
+            var ER: String = JOptionPane.showInputDialog("ESCRIBA UNA EXPRESION REGULAR");
+            if(ER.length>1&&!ER.equals(" ")){
+                nombre = ER
+                break
+            }else{
+                showMessage("ESCRIBA UNA EXPRESION REGULAR")
+            }
+        }
+        (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "NFAE"
+        if(nombre.length>1){
+            graph.model.beginUpdate()
+            graph.removeCells(graph.getChildVertices(graph.defaultParent))
+            graph.model.endUpdate()
+            try {
+                var rootNode = RegularExpressionParser().Parse(nombre)
+                nfae.obtainAutomata(rootNode, nfae)
+            } catch (e: Exception) {
+                showMessage("NO SE REALIZO")
+            }
+            for (estados in nfae.estados) {
+                var inicial = false
+                if (estados.NombreEstado.equals(nfae.estadoInicial.NombreEstado)){
+                    inicial = true
+                }
+                var x =Random()
+                var y = Random()
+                estados.Vertex = Dibujar(true,inicial,estados.EsAcceptable,estados.NombreEstado, x.nextInt(500),y.nextInt(500),graph)
+
+            }
+            for (estados in nfae.transiciones){
+                graph.model.beginUpdate()
+                graph.insertEdge(parent, null, estados.Simbolo, nfae.obtenerEstado(estados.EstadoInicial.NombreEstado).Vertex, nfae.obtenerEstado(estados.EstadoFinal.NombreEstado).Vertex)
+                graph.model.endUpdate()
+
+            }
+        }
+    }
+
+    private fun  ResetActionPerformed(evt: ActionEvent) {
+        graph.model.beginUpdate()
+        graph.removeCells(graph.getChildVertices(graph.defaultParent))
+        graph.model.endUpdate()
+        (this.TipoAutomataCombox as JComboBox<String>).enable()
+        (this.SimboloIniciaDePilaTXTField as JTextField).isVisible = true
+         dfa =DFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
+        nfa= NFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
+         nfae = NFAE( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
+         pda  = PDA(mutableListOf(),mutableListOf(),Estado("",false), mutableListOf())
+        mt  = MDT(mutableListOf(), mutableListOf(), Estado("", false), mutableListOf())
+        this.AlfabetoTXTField?.text = ""
+        this.CadenaTXTField?.text = ""
+        this.SimboloIniciaDePilaTXTField?.text = ""
+        SimboloIniciaDePilaTXTField?.setVisible(true)
+        jLabel3?.setVisible(true)
+        frame.EstadoInicialRadioBtn?.isVisible = true
+        this.AceptacionLabel?.text = ""
+
+
+    }
 
     private fun  GramaticaToPDAActionPerformed(evt: ActionEvent) {
         var nombre =" "
@@ -491,8 +570,10 @@ public class JframeMenu : javax.swing.JFrame() {
     }
     fun ConvertirDFAActionPerformed(evt: java.awt.event.ActionEvent) {
         // TODO add your handling code here:
-        if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA") {
-        showMessage("El automata es un DFA")
+        if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "DFA"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA"||
+                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "MT") {
+        showMessage("No disponible")
             return
         }
         graph.model.beginUpdate()
@@ -538,9 +619,6 @@ public class JframeMenu : javax.swing.JFrame() {
             }
             (this.TipoAutomataCombox as JComboBox<String>).selectedItem = "DFA"
 
-        } else if ((TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "PDA"||
-                (TipoAutomataCombox as JComboBox<String>).selectedItem.toString() == "MT") {
-            showMessage("No disponible")
         }
     }
 
@@ -722,6 +800,7 @@ public class JframeMenu : javax.swing.JFrame() {
     var SimboloIniciaDePilaTXTField : JTextField? = null
     var EvaluarBtn: JButton? = null
     var MinimizarBtn: JButton? = null
+    var Reset: JButton? = null
     var TipoAutomataCombox: JComboBox<String>? = null
     var jLabel1: JLabel? = null
     var  jLabel2: JLabel? = null
@@ -731,6 +810,7 @@ public class JframeMenu : javax.swing.JFrame() {
     var GuardarAutomata: JButton? = null
     var OperacionesDeConjunto: JButton? = null
     var ConvertirExpresionRegular: JButton? = null
+    var ConvertirExpresionRegulartoNfae: JButton? = null
     var dfa: DFA =DFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfa: NFA = NFA( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
     var nfae: NFAE = NFAE( mutableListOf() , mutableListOf() , Estado("",false) ,mutableListOf())
